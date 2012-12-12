@@ -41,16 +41,16 @@ class Resource
    * Renders out the link for the resource requested. If the resourse wasn't found, it will return an empty string
    *
    * @param  string  $resourceName
-   * @param  boolean $version
+   * @param  boolean $minified Whether we should minify the code or not
    * @return string
    */
-  public static function renderResource($resourceName, $version = true)
+  public static function renderResource($resourceName, $minified = true)
   {
     $resource = self::getResourceInfo($resourceName);
     if ($resource === false) {
       return '';
     }
-    if ($version) {
+    if ($minified) {
       return sprintf('%s%s&amp;%s',
           self::MIN_PREFIX,
           $resource['path'],
