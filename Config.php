@@ -15,13 +15,13 @@ class Config
 {
   /**
    * tinymce config version
-   * @var string
+   * @var integer
    */
-  const TINYMCE_CONFIG_VERSION = '4';
+  const TINYMCE_CONFIG_VERSION = 4;
 
   /**
    * imageFill version
-   * @var string
+   * @var integer
    */
-  const IMAGE_FILL_JS_VERSION = '2';
+  const IMAGE_FILL_JS_VERSION = 2;
 }
