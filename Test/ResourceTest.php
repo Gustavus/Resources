@@ -41,26 +41,21 @@ class ResourcesTest extends \Gustavus\Test\Test
 
   /**
    * @test
-   * @dataProvider renderResourceData
+   * @dataProvider renderResourcesData
    */
-  public function renderResource($expected, $resource, $minified = true)
+  public function renderResources($expected, $resources, $minified = true)
   {
-    $this->assertSame($expected, Resources\Resource::renderResource($resource, $minified));
+    $this->assertSame($expected, Resources\Resource::renderResource($resources, $minified));
   }
 
   /**
-   * data provider for renderResource
+   * data provider for renderResources
    */
-  public function renderResourceData()
+  public function renderResourcesData()
   {
     return [
-      ['/min/f=/js/imageFill.js&amp;' . Resources\Config::IMAGE_FILL_JS_VERSION, 'imageFill'],
-      ['/min/f=/js/imageFill.js&amp;' . Resources\Config::IMAGE_FILL_JS_VERSION, 'imagefill'],
-      ['/min/f=/js/tinymce-config.js&amp;' . Resources\Config::TINYMCE_CONFIG_VERSION, 'tinyMCEConfig'],
-      // non minified
-      ['/js/imageFill.js', 'imageFill', false],
-      ['/js/imageFill.js', 'imagefill', false],
-      ['/js/tinymce-config.js', 'tinyMCEConfig', false],
+      ['/min/f=/js/imageFill.js&amp;' . Resources\Config::IMAGE_FILL_JS_VERSION, ['imageFill']],
+      ['/min/f=/js/imageFill.js,/js/tinymce-config.js&amp;' . (Resources\Config::IMAGE_FILL_JS_VERSION + Resources\Config::TINYMCE_CONFIG_VERSION), ['imagefill', 'tinyMCEConfig']],
     ];
   }
 }
