@@ -24,4 +24,10 @@ class Config
    * @var integer
    */
   const IMAGE_FILL_JS_VERSION = 2;
+
+  /**
+   * qtip version
+   * @var  integer
+   */
+  const QTIP_VERSION = 1;
 }

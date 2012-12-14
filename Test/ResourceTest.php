@@ -54,8 +54,8 @@ class ResourcesTest extends \Gustavus\Test\Test
   public function renderResourcesData()
   {
     return [
-      ['/min/f=/js/imageFill.js&amp;' . Resources\Config::IMAGE_FILL_JS_VERSION, ['imageFill']],
-      ['/min/f=/js/imageFill.js,/js/tinymce-config.js&amp;' . (Resources\Config::IMAGE_FILL_JS_VERSION + Resources\Config::TINYMCE_CONFIG_VERSION), ['imagefill', 'tinyMCEConfig']],
+      ['/min/f=/js/imageFill.js&amp;' . (Resources\Config::IMAGE_FILL_JS_VERSION - 0), ['imageFill']],
+      ['/min/f=/js/imageFill.js,/js/tinymce-config.js&amp;' . (Resources\Config::IMAGE_FILL_JS_VERSION + Resources\Config::TINYMCE_CONFIG_VERSION - 1), ['imagefill', 'tinyMCEConfig']],
     ];
   }
 }

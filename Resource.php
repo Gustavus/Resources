@@ -32,6 +32,10 @@ class Resource
           return ['path' => '/js/imageFill.js', 'version' => Config::IMAGE_FILL_JS_VERSION];
       case 'tinymceconfig' :
           return ['path' => '/js/tinymce-config.js', 'version' => Config::TINYMCE_CONFIG_VERSION];
+      case 'qtip' :
+          return ['path' => '/js/jquery/qTip2/dist/jquery.qtip.min.js', 'version' => Config::QTIP_VERSION];
+      case 'qtip-css' :
+          return ['path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css', 'version' => Config::QTIP_VERSION];
       default :
           return false;
     }
@@ -85,7 +89,11 @@ class Resource
       }
       $version += $resource['version'];
     }
-    $return .= "&amp;{$version}";
+    // subract the number of files -1 from the version
+    // If we have 5 files of version 1, we want the version to be 1.
+    // If one file increments to version 2, we want it to be version 2.
+    // If two files increment to verison 2, it will be version 3.
+    $return .= '&amp;' . ($version - $lastKey);
     return $return;
   }
 }
