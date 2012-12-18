@@ -30,4 +30,10 @@ class Config
    * @var  integer
    */
   const QTIP_VERSION = 1;
+
+  /**
+   * helpbox version
+   * @var  integer
+   */
+  const HELPBOX_VERSION = 1;
 }
