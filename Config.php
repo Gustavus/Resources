@@ -29,11 +29,17 @@ class Config
    * qtip version
    * @var  integer
    */
-  const QTIP_VERSION = 1;
+  const QTIP_VERSION = 2;
 
   /**
    * helpbox version
    * @var  integer
    */
   const HELPBOX_VERSION = 1;
+
+  /**
+   * crc32 version
+   * @var  integer
+   */
+  const CRC32_VERSION = 1;
 }

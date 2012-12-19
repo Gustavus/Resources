@@ -40,6 +40,8 @@ class Resource
           return ['path' => '/js/plugins/helpbox/helpbox.js', 'version' => Config::HELPBOX_VERSION];
       case 'helpbox-css' :
           return ['path' => '/js/plugins/helpbox/helpbox.css', 'version' => Config::HELPBOX_VERSION];
+      case 'crc32' :
+          return ['path' => '/js/crc32.js', 'version' => Config::CRC32_VERSION];
       default :
           return false;
     }
