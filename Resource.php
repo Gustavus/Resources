@@ -110,7 +110,7 @@ class Resource
    * @param  array|boolean $cssCrushOptions Options to pass onto cssCrush
    * @return string
    */
-  public static function renderCSS($resourceName, $minified = true, $cssCrushOptions = false)
+  public static function renderCSS($resourceName, $minified = true, $cssCrushOptions = true)
   {
     return Resource::renderResource($resourceName, $minified, $cssCrushOptions);
   }
