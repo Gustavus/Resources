@@ -52,9 +52,10 @@ class Resource
    *
    * @param  string|array  $resourceName Either a single resource name, an array of resource names or resource info, or an array of resource info
    * @param  boolean $minified Whether we should minify the code or not
+   * @param  boolean|array $cssCrush Whether we should pass this through cssCrush or not. Could be an array of options to pass to cssCrush.
    * @return string
    */
-  public static function renderResource($resourceName, $minified = true)
+  public static function renderResource($resourceName, $minified = true, $cssCrush = false)
   {
     if (is_array($resourceName)) {
       if (array_key_exists('path', $resourceName)) {
@@ -70,6 +71,18 @@ class Resource
       // resource not found.
       return '';
     }
+
+    if ($cssCrush !== false && substr($resource['path'], -4) === '.css') {
+      // css file. Let's pass this through css crush and return the new filename
+      require_once 'css-crush/CssCrush.php';
+      if (is_array($cssCrush)) {
+        $cssCrushOptions = array_merge(['minify' => $minified], $cssCrush);
+      } else {
+        $cssCrushOptions = ['minify' => $minified];
+      }
+      return \CssCrush::file($resource['path'], $cssCrushOptions);
+    }
+
     if (!isset($resource['version'])) {
       // make sure the resource has a version
       $resource['version'] = 1;
@@ -87,6 +100,21 @@ class Resource
       );
     }
   }
+
+  /**
+   * Renders out a crushed css resource.
+   * This requires that the location of the css file is writeable by httpd
+   *
+   * @param  string|array  $resourceName Either a single resource name, an array of resource names or resource info, or an array of resource info
+   * @param  boolean $minified Whether we should minify the code or not
+   * @param  array|boolean $cssCrushOptions Options to pass onto cssCrush
+   * @return string
+   */
+  public static function renderCSS($resourceName, $minified = true, $cssCrushOptions = false)
+  {
+    return Resource::renderResource($resourceName, $minified, $cssCrushOptions);
+  }
+
 
   /**
    * Renders out a bunch of resources using the minifier and adds the versions of all the resources up so that if you increment one version, the concatenated file will be incremented accordingly
