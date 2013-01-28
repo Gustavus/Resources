@@ -29,7 +29,7 @@ class Config
    * qtip version
    * @var  integer
    */
-  const QTIP_VERSION = 2;
+  const QTIP_VERSION = 3;
 
   /**
    * helpbox version
