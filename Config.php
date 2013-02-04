@@ -42,4 +42,40 @@ class Config
    * @var  integer
    */
   const CRC32_VERSION = 1;
+
+  /**
+   * socialpopover version
+   * @var  integer
+   */
+  const SOCIAL_POPOVER_VERSION = 1;
+
+  /**
+   * socialscroller version
+   * @var  integer
+   */
+  const SOCIAL_SCROLLER_VERSION = 1;
+
+  /**
+   * socialmedia-facebook version
+   * @var  integer
+   */
+  const SOCIAL_MEDIA_FACEBOOK_VERSION = 1;
+
+  /**
+   * socialmedia-twitter version
+   * @var  integer
+   */
+  const SOCIAL_MEDIA_TWITTER_VERSION = 1;
+
+  /**
+   * socialmedia-youtube version
+   * @var  integer
+   */
+  const SOCIAL_MEDIA_YOUTUBE_VERSION = 1;
+
+  /**
+   * socialmedia-flickr version
+   * @var  integer
+   */
+  const SOCIAL_MEDIA_FLICKR_VERSION = 1;
 }

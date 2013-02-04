@@ -42,6 +42,24 @@ class Resource
           return ['path' => '/js/plugins/helpbox/helpbox.css', 'version' => Config::HELPBOX_VERSION];
       case 'crc32' :
           return ['path' => '/js/crc32.js', 'version' => Config::CRC32_VERSION];
+      case 'socialpopover' :
+          return ['path' => '/js/plugins/socialMedia/socialPopover.js', 'version' => Config::SOCIAL_POPOVER_VERSION];
+      case 'socialpopover-css' :
+          return ['path' => '/js/plugins/socialMedia/socialPopover.css', 'version' => Config::SOCIAL_POPOVER_VERSION];
+      case 'socialscroller' :
+          return ['path' => '/socialMedia/js/socialScroller.js', 'version' => Config::SOCIAL_SCROLLER_VERSION];
+      case 'socialscroller-css' :
+          return ['path' => '/socialMedia/css/socialScroller.css', 'version' => Config::SOCIAL_SCROLLER_VERSION];
+      case 'socialmedia-facebook' :
+          return ['path' => '/socialMedia/js/facebook.js', 'version' => Config::SOCIAL_MEDIA_FACEBOOK_VERSION];
+      case 'socialmedia-twitter' :
+          return ['path' => '/socialMedia/js/twitter.js', 'version' => Config::SOCIAL_MEDIA_TWITTER_VERSION];
+      case 'socialmedia-youtube' :
+          return ['path' => '/socialMedia/js/youtube.js', 'version' => Config::SOCIAL_MEDIA_YOUTUBE_VERSION];
+      case 'socialmedia-flickr' :
+          return ['path' => '/socialMedia/js/flickr.js', 'version' => Config::SOCIAL_MEDIA_FLICKR_VERSION];
+
+
       default :
           return false;
     }
