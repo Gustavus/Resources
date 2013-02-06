@@ -58,8 +58,22 @@ class ResourcesTest extends \Gustavus\Test\Test
       ['/js/imageFill.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION - 0), 'imageFill', false],
       ['/min/f=/js/imageFill.js,/js/tinymce-config.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION + Resources\Config::TINYMCE_CONFIG_VERSION - 1), ['imagefill', 'tinyMCEConfig']],
       ['/min/f=/js/formBuilder.js?v=1', ['path' => '/js/formBuilder.js', 'version' => 1]],
+      ['/min/f=/js/formBuilder.js?v=1', ['path' => '/js/formBuilder.js']],
       ['/min/f=/js/arst.js,/js/formBuilder.js?v=2', [['path' => '/js/arst.js', 'version' => 2], ['path' => '/js/formBuilder.js', 'version' => 1]]],
+      ['/min/f=/js/arst.js,/js/formBuilder.js?v=2', [['path' => '/js/arst.js', 'version' => 2], ['path' => '/js/formBuilder.js']]],
 
     ];
+  }
+
+  /**
+   * @test
+   */
+  public function renderCSS()
+  {
+    $resource = ['path' => '/js/plugins/helpbox/helpbox.css'];
+    $options['doc_root'] = '/cis/www/';
+    $actual = Resources\Resource::renderCSS($resource, true, $options);
+    $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
+    $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
   }
 }

@@ -42,6 +42,24 @@ class Resource
           return ['path' => '/js/plugins/helpbox/helpbox.css', 'version' => Config::HELPBOX_VERSION];
       case 'crc32' :
           return ['path' => '/js/crc32.js', 'version' => Config::CRC32_VERSION];
+      case 'socialpopover' :
+          return ['path' => '/js/plugins/socialMedia/socialPopover.js', 'version' => Config::SOCIAL_POPOVER_VERSION];
+      case 'socialpopover-css' :
+          return ['path' => '/js/plugins/socialMedia/socialPopover.css', 'version' => Config::SOCIAL_POPOVER_VERSION];
+      case 'socialscroller' :
+          return ['path' => '/socialMedia/js/socialScroller.js', 'version' => Config::SOCIAL_SCROLLER_VERSION];
+      case 'socialscroller-css' :
+          return ['path' => '/socialMedia/css/socialScroller.css', 'version' => Config::SOCIAL_SCROLLER_VERSION];
+      case 'socialmedia-facebook' :
+          return ['path' => '/socialMedia/js/facebook.js', 'version' => Config::SOCIAL_MEDIA_FACEBOOK_VERSION];
+      case 'socialmedia-twitter' :
+          return ['path' => '/socialMedia/js/twitter.js', 'version' => Config::SOCIAL_MEDIA_TWITTER_VERSION];
+      case 'socialmedia-youtube' :
+          return ['path' => '/socialMedia/js/youtube.js', 'version' => Config::SOCIAL_MEDIA_YOUTUBE_VERSION];
+      case 'socialmedia-flickr' :
+          return ['path' => '/socialMedia/js/flickr.js', 'version' => Config::SOCIAL_MEDIA_FLICKR_VERSION];
+
+
       default :
           return false;
     }
@@ -52,9 +70,10 @@ class Resource
    *
    * @param  string|array  $resourceName Either a single resource name, an array of resource names or resource info, or an array of resource info
    * @param  boolean $minified Whether we should minify the code or not
+   * @param  boolean|array $cssCrush Whether we should pass this through cssCrush or not. Could be an array of options to pass to cssCrush.
    * @return string
    */
-  public static function renderResource($resourceName, $minified = true)
+  public static function renderResource($resourceName, $minified = true, $cssCrush = false)
   {
     if (is_array($resourceName)) {
       if (array_key_exists('path', $resourceName)) {
@@ -70,6 +89,18 @@ class Resource
       // resource not found.
       return '';
     }
+
+    if ($cssCrush !== false && substr($resource['path'], -4) === '.css') {
+      // css file. Let's pass this through css crush and return the new filename
+      require_once 'css-crush/CssCrush.php';
+      if (is_array($cssCrush)) {
+        $cssCrushOptions = array_merge(['minify' => $minified], $cssCrush);
+      } else {
+        $cssCrushOptions = ['minify' => $minified];
+      }
+      return \CssCrush::file($resource['path'], $cssCrushOptions);
+    }
+
     if (!isset($resource['version'])) {
       // make sure the resource has a version
       $resource['version'] = 1;
@@ -87,6 +118,21 @@ class Resource
       );
     }
   }
+
+  /**
+   * Renders out a crushed css resource.
+   * This requires that the location of the css file is writeable by httpd
+   *
+   * @param  string|array  $resourceName Either a single resource name, an array of resource names or resource info, or an array of resource info
+   * @param  boolean $minified Whether we should minify the code or not
+   * @param  array|boolean $cssCrushOptions Options to pass onto cssCrush
+   * @return string
+   */
+  public static function renderCSS($resourceName, $minified = true, $cssCrushOptions = true)
+  {
+    return Resource::renderResource($resourceName, $minified, $cssCrushOptions);
+  }
+
 
   /**
    * Renders out a bunch of resources using the minifier and adds the versions of all the resources up so that if you increment one version, the concatenated file will be incremented accordingly
