@@ -53,7 +53,7 @@ class Config
    * socialscroller version
    * @var  integer
    */
-  const SOCIAL_SCROLLER_VERSION = 1;
+  const SOCIAL_SCROLLER_VERSION = 2;
 
   /**
    * socialmedia-facebook version
