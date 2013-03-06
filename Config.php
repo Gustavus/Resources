@@ -77,5 +77,5 @@ class Config
    * socialmedia-flickr version
    * @var  integer
    */
-  const SOCIAL_MEDIA_FLICKR_VERSION = 1;
+  const SOCIAL_MEDIA_FLICKR_VERSION = 2;
 }
