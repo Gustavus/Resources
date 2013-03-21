@@ -20,6 +20,12 @@ class Config
   const TINYMCE_CONFIG_VERSION = 4;
 
   /**
+   * tinymce version
+   * @var integer
+   */
+  const TINYMCE_VERSION = 1;
+
+  /**
    * imageFill version
    * @var integer
    */
@@ -77,5 +83,5 @@ class Config
    * socialmedia-flickr version
    * @var  integer
    */
-  const SOCIAL_MEDIA_FLICKR_VERSION = 1;
+  const SOCIAL_MEDIA_FLICKR_VERSION = 2;
 }
