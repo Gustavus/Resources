@@ -108,13 +108,15 @@ class Resource
       $resource['version'] = 1;
     }
     if ($minified) {
-      return sprintf('%s%s?v=%s',
+      return sprintf('%s%s%s?v=%s',
+          self::determineHost(),
           Resource::MIN_PREFIX,
           $resource['path'],
           $resource['version']
       );
     } else {
-      return sprintf('%s?v=%s',
+      return sprintf('%s%s?v=%s',
+          self::determineHost(),
           $resource['path'],
           $resource['version']
       );
@@ -144,7 +146,7 @@ class Resource
    */
   private static function renderResources(array $resourceNames)
   {
-    $return = Resource::MIN_PREFIX;
+    $return  = self::determineHost() . Resource::MIN_PREFIX;
     $version = 0;
     $lastKey = count($resourceNames) - 1;
 
@@ -178,5 +180,19 @@ class Resource
     // If two files increment to verison 2, it will be version 3.
     $return .= '?v=' . ($version - $lastKey);
     return $return;
+  }
+
+  /**
+   * Determines what host to use based on the current server
+   *
+   * @return string
+   */
+  private static function determineHost()
+  {
+    if (\Config::isBeta()) {
+      return 'https://static-beta2.gac.edu';
+    } else {
+      return 'https://static2.gac.edu';
+    }
   }
 }
