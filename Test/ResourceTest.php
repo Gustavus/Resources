@@ -73,6 +73,7 @@ class ResourcesTest extends \Gustavus\Test\Test
     $resource = ['path' => '/js/plugins/helpbox/helpbox.css'];
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderCSS($resource, true, $options);
+    $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/js/plugins/helpbox/helpbox.crush.css') !== false);
     $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
   }

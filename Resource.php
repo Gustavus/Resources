@@ -100,7 +100,7 @@ class Resource
       } else {
         $cssCrushOptions = ['minify' => $minified];
       }
-      return \CssCrush::file($resource['path'], $cssCrushOptions);
+      return self::determineHost() . \CssCrush::file($resource['path'], $cssCrushOptions);
     }
 
     if (!isset($resource['version'])) {
