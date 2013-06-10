@@ -79,21 +79,30 @@ class Resource
       return '';
     }
 
-    if ($cssCrush !== false && substr($resource['path'], -4) === '.css') {
-      // css file. Let's pass this through css crush and return the new filename
-      require_once 'css-crush/CssCrush.php';
-      if (is_array($cssCrush)) {
-        $cssCrushOptions = array_merge(['minify' => $minified], $cssCrush);
-      } else {
-        $cssCrushOptions = ['minify' => $minified];
-      }
-      return self::determineHost() . \CssCrush::file($resource['path'], $cssCrushOptions);
-    }
-
     if (!isset($resource['version'])) {
       // make sure the resource has a version
       $resource['version'] = 1;
     }
+
+    if ($cssCrush !== false && substr($resource['path'], -4) === '.css') {
+      // css file. Let's pass this through css crush and return the crushed file
+      if (!\Config::isBlog()) {
+        require_once 'css-crush/CssCrush.php';
+        if (is_array($cssCrush)) {
+          $cssCrushOptions = array_merge(['minify' => $minified], $cssCrush);
+        } else {
+          $cssCrushOptions = ['minify' => $minified];
+        }
+        \CssCrush::file($resource['path'], $cssCrushOptions);
+      }
+
+      return sprintf('%s%s?v=%s',
+          self::determineHost(),
+          str_replace('.css', '.crush.css', $resource['path']),
+          $resource['version']
+      );
+    }
+
     if ($minified) {
       return sprintf('%s%s%s?v=%s',
           self::determineHost(),
