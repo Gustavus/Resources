@@ -53,6 +53,6 @@ class Config
    * socialpopover version
    * @var  integer
    */
-  const SOCIAL_POPOVER_VERSION = 2;
+  const SOCIAL_POPOVER_VERSION = 3;
 
 }
