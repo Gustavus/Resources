@@ -87,11 +87,13 @@ class Resource
     if ($cssCrush !== false && substr($resource['path'], -4) === '.css') {
       // css file. Let's pass this through css crush and return the crushed file
       if (!\Config::isBlog()) {
+        // we don't want to crush files as the blog's httpd user due to permission issues, and doc_root issues.
         require_once 'css-crush/CssCrush.php';
+
+        $cssCrushOptions = ['minify' => $minified, 'versioning' => false, 'doc_root' => '/cis/www'];
+
         if (is_array($cssCrush)) {
-          $cssCrushOptions = array_merge(['minify' => $minified], $cssCrush);
-        } else {
-          $cssCrushOptions = ['minify' => $minified];
+          $cssCrushOptions = array_merge($cssCrushOptions, $cssCrush);
         }
         \CssCrush::file($resource['path'], $cssCrushOptions);
       }
