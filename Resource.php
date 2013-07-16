@@ -87,6 +87,10 @@ class Resource
     if ($cssCrush !== false && substr($resource['path'], -4) === '.css') {
       // css file. Let's pass this through css crush and return the crushed file
       if (!\Config::isBlog()) {
+        if (\Config::isBeta()) {
+          // we don't want to minify beta css
+          $minified = false;
+        }
         // we don't want to crush files as the blog's httpd user due to permission issues, and doc_root issues.
         require_once 'css-crush/CssCrush.php';
 
