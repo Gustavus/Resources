@@ -86,23 +86,7 @@ class Resource
 
     if ($cssCrush !== false && substr($resource['path'], -4) === '.css') {
       // css file. Let's pass this through css crush and return the crushed file
-      if (!\Config::isBlog()) {
-        // we don't want to crush files as the blog's httpd user due to permission issues, and doc_root issues.
-        require_once 'css-crush/CssCrush.php';
-
-        $cssCrushOptions = ['minify' => $minified, 'versioning' => false, 'doc_root' => '/cis/www'];
-
-        if (is_array($cssCrush)) {
-          $cssCrushOptions = array_merge($cssCrushOptions, $cssCrush);
-        }
-        \CssCrush::file($resource['path'], $cssCrushOptions);
-      }
-
-      return sprintf('%s%s?v=%s',
-          self::determineHost(),
-          str_replace('.css', '.crush.css', $resource['path']),
-          $resource['version']
-      );
+      return self::crushify($resource, $minified, $cssCrush);
     }
 
     if ($minified) {
@@ -122,6 +106,46 @@ class Resource
   }
 
   /**
+   * CssCrushifies a single resource
+   *
+   * @param  array    $resource   array of resource config with keys of path and version
+   * @param  boolean  $minified   whether or not to minify the resource
+   * @param  array|boolean  $additionalOpts Additional options to pass to css crush
+   * @param  boolean  $urlify     whether or not to return the url version or the array version of this resource
+   * @return string|array String if $urlify is true, otherwise an array.
+   */
+  private static function crushify($resource, $minified, $additionalOpts, $urlify = true)
+  {
+    if (!\Config::isBlog()) {
+      // we don't want to crush files as the blog's httpd user due to permission issues, and doc_root issues.
+      if (\Config::isBeta()) {
+        // we don't want to minify beta css
+        $minified = false;
+      }
+      require_once 'css-crush/CssCrush.php';
+
+      $cssCrushOptions = ['minify' => $minified, 'versioning' => false, 'doc_root' => '/cis/www'];
+
+      if (is_array($additionalOpts)) {
+        $cssCrushOptions = array_merge($cssCrushOptions, $additionalOpts);
+      }
+      \CssCrush::file($resource['path'], $cssCrushOptions);
+    }
+
+    if ($urlify) {
+      return sprintf('%s%s?v=%s',
+          self::determineHost(),
+          str_replace('.css', '.crush.css', $resource['path']),
+          $resource['version']
+      );
+    } else {
+      // we don't want this resource urlified.
+      $resource['path'] = str_replace('.css', '.crush.css', $resource['path']);
+      return $resource;
+    }
+  }
+
+  /**
    * Renders out a crushed css resource.
    * This requires that the location of the css file is writeable by httpd
    *
@@ -132,6 +156,14 @@ class Resource
    */
   public static function renderCSS($resourceName, $minified = true, $cssCrushOptions = true)
   {
+    if (is_array($resourceName) && !array_key_exists('path', $resourceName)) {
+      // working with multiple css resources
+      $crushedResources = [];
+      foreach ($resourceName as $resource) {
+        $crushedResources[] = self::crushify($resource, $minified, $cssCrushOptions, false);
+      }
+      return self::renderResources($crushedResources);
+    }
     return Resource::renderResource($resourceName, $minified, $cssCrushOptions);
   }
 
