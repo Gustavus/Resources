@@ -48,6 +48,10 @@ class Resource
           return ['path' => '/js/plugins/socialMedia/socialPopover.js', 'version' => Config::SOCIAL_POPOVER_VERSION];
       case 'socialpopover-css' :
           return ['path' => '/js/plugins/socialMedia/socialPopover.css', 'version' => Config::SOCIAL_POPOVER_VERSION];
+      case 'select2' :
+          return ['path' => '/js/jquery/select2/select2.js', 'version' => Config::SELECT2_VERSION];
+      case 'select2-css' :
+          return ['path' => '/js/jquery/select2/select2.css', 'version' => Config::SELECT2_VERSION];
 
       default :
           return false;
