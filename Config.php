@@ -29,7 +29,7 @@ class Config
    * imageFill version
    * @var integer
    */
-  const IMAGE_FILL_JS_VERSION = 2;
+  const IMAGE_FILL_JS_VERSION = 3;
 
   /**
    * qtip version
