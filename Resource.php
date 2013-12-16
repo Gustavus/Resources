@@ -133,7 +133,7 @@ class Resource
       if (is_array($additionalOpts)) {
         $cssCrushOptions = array_merge($cssCrushOptions, $additionalOpts);
       }
-      \CssCrush::file($resource['path'], $cssCrushOptions);
+      \CssCrush\CssCrush::file($resource['path'], $cssCrushOptions);
     }
 
     if ($urlify) {
