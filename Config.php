@@ -59,5 +59,5 @@ class Config
    * Select2 version
    * @var  integer
    */
-  const SELECT2_VERSION = 1;
+  const SELECT2_VERSION = 2;
 }
