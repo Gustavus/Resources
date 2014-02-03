@@ -41,7 +41,7 @@ class Config
    * helpbox version
    * @var  integer
    */
-  const HELPBOX_VERSION = 3;
+  const HELPBOX_VERSION = 4;
 
   /**
    * crc32 version
