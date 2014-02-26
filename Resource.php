@@ -228,6 +228,9 @@ class Resource
   private static function determineHost()
   {
     if (\Config::isBeta()) {
+      if (\Config::isAlpha()) {
+        return 'https://homer.gac.edu';
+      }
       return 'https://static-beta2.gac.edu';
     } else {
       return 'https://static2.gac.edu';
