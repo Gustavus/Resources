@@ -168,7 +168,11 @@ class Resource
       // working with multiple css resources
       $crushedResources = [];
       foreach ($resourceName as $resource) {
-        $crushedResources[] = self::crushify($resource, $minified, $cssCrushOptions, false);
+        if (!is_array($resource)) {
+          $crushedResources[] = self::getResourceInfo($resource);
+        } else {
+          $crushedResources[] = self::crushify($resource, $minified, $cssCrushOptions, false);
+        }
       }
       return self::renderResources($crushedResources);
     }
