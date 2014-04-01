@@ -147,10 +147,9 @@ class Resource
       } else {
         $crushResult = \CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
       }
-    }
-
-    if ($crushMethod !== 'file') {
-      return $crushResult;
+      if ($crushMethod !== 'file') {
+        return $crushResult;
+      }
     }
 
     if (!isset($resource['version'])) {
