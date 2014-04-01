@@ -94,11 +94,12 @@ class Resource
     }
 
     if ($minified || strpos($resource['path'], ',') !== false) {
-      return sprintf('%s%s%s?v=%s',
+      return sprintf('%s%s%s?v=%s%s',
           self::determineHost(),
           Resource::MIN_PREFIX,
           $resource['path'],
-          $resource['version']
+          $resource['version'],
+          (!self::allowMinification() ? '&m=false' : '')
       );
     } else {
       return sprintf('%s%s?v=%s',
@@ -124,8 +125,8 @@ class Resource
   {
     if (!\Config::isBlog()) {
       // we don't want to crush files as the blog's httpd user due to permission issues, and doc_root issues.
-      if (\Config::isBeta()) {
-        // we don't want to minify beta css
+      if (!self::allowMinification()) {
+        // we don't want to minify anything
         $minified = false;
       }
       require_once 'css-crush/CssCrush.php';
@@ -238,6 +239,9 @@ class Resource
     // If one file increments to version 2, we want it to be version 2.
     // If two files increment to verison 2, it will be version 3.
     $return .= '?v=' . ($version - $lastKey);
+    if (!self::allowMinification()) {
+      $return .= '&m=false';
+    }
     return $return;
   }
 
@@ -256,5 +260,15 @@ class Resource
     } else {
       return 'https://static2.gac.edu';
     }
+  }
+
+  /**
+   * Whether or not we want to minify resources
+   *
+   * @return boolean
+   */
+  private static function allowMinification()
+  {
+    return !\Config::isBeta();
   }
 }

@@ -14,11 +14,18 @@ use \Gustavus\Resources;
 class ResourcesTest extends \Gustavus\Test\Test
 {
   /**
+   * Token for overriding methods
+   * @var mixed
+   */
+  private $overrideToken;
+
+  /**
    * sets up the object for each test
    * @return void
    */
   public function setUp()
   {
+    $this->overrideToken = override_method('\Gustavus\Resources\Resource', 'allowMinification', function() {return true;});
   }
 
   /**
@@ -27,6 +34,7 @@ class ResourcesTest extends \Gustavus\Test\Test
    */
   public function tearDown()
   {
+    unset($this->overrideToken);
   }
 
   /**
@@ -63,6 +71,24 @@ class ResourcesTest extends \Gustavus\Test\Test
       ['https://static-beta2.gac.edu/min/f=/js/arst.js,/js/formBuilder.js?v=2', [['path' => '/js/arst.js', 'version' => 2], ['path' => '/js/formBuilder.js']]],
 
     ];
+  }
+
+  /**
+   * @test
+   */
+  public function renderResourceBeta()
+  {
+    // test that our beta resources aren't minified
+    $this->tearDown();
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/imageFill.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION - 0) . '&m=false';
+    $this->assertSame($expected, Resources\Resource::renderResource('imageFill'));
+
+    // not minifying, and we don't need to, won't go through the minifier
+    $this->assertSame('https://static-beta2.gac.edu/js/imageFill.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION - 0), Resources\Resource::renderResource('imageFill', false));
+
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/arst.js,/js/formBuilder.js?v=2&m=false';
+    $this->assertSame($expected, Resources\Resource::renderResource([['path' => '/js/arst.js', 'version' => 2], ['path' => '/js/formBuilder.js']]));
+
   }
 
   /**
