@@ -93,7 +93,7 @@ class Resource
       return self::crushify($resource, $minified, $cssCrush);
     }
 
-    if ($minified) {
+    if ($minified || strpos($resource['path'], ',') !== false) {
       return sprintf('%s%s%s?v=%s',
           self::determineHost(),
           Resource::MIN_PREFIX,
@@ -114,7 +114,9 @@ class Resource
    *
    * @param  array    $resource   array of resource config with keys of path and version
    * @param  boolean  $minified   whether or not to minify the resource
-   * @param  array|boolean  $additionalOpts Additional options to pass to css crush
+   * @param  array|boolean  $additionalOpts Additional options to pass to css crush.
+   *   Key of 'crushMethod' with values of 'file', 'inline', or 'string' is used internally to determine how to crush the file. Defaults to file.
+   *   Other options can be found in <a href="http://the-echoplex.net/csscrush/#api--options">crush's documentation</a>.
    * @param  boolean  $urlify     whether or not to return the url version or the array version of this resource
    * @return string|array String if $urlify is true, otherwise an array.
    */
@@ -128,16 +130,26 @@ class Resource
       }
       require_once 'css-crush/CssCrush.php';
 
+      if (isset($additionalOpts['crushMethod']) && in_array($additionalOpts['crushMethod'], ['file', 'inline', 'string'])) {
+        $crushMethod = $additionalOpts['crushMethod'];
+      } else {
+        $crushMethod = 'file';
+      }
+
       $cssCrushOptions = ['minify' => $minified, 'versioning' => false, 'doc_root' => '/cis/www'];
 
       if (is_array($additionalOpts)) {
         $cssCrushOptions = array_merge($cssCrushOptions, $additionalOpts);
       }
       if (class_exists('\CssCrush\CssCrush', false)) {
-        \CssCrush\CssCrush::file($resource['path'], $cssCrushOptions);
+        $crushResult = \CssCrush\CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
       } else {
-        \CssCrush::file($resource['path'], $cssCrushOptions);
+        $crushResult = \CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
       }
+    }
+
+    if ($crushMethod !== 'file') {
+      return $crushResult;
     }
 
     if ($urlify) {
