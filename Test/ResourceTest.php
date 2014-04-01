@@ -14,11 +14,18 @@ use \Gustavus\Resources;
 class ResourcesTest extends \Gustavus\Test\Test
 {
   /**
+   * Token for overriding methods
+   * @var mixed
+   */
+  private $overrideToken;
+
+  /**
    * sets up the object for each test
    * @return void
    */
   public function setUp()
   {
+    $this->overrideToken = override_method('\Gustavus\Resources\Resource', 'allowMinification', function() {return true;});
   }
 
   /**
@@ -27,6 +34,7 @@ class ResourcesTest extends \Gustavus\Test\Test
    */
   public function tearDown()
   {
+    unset($this->overrideToken);
   }
 
   /**
@@ -68,6 +76,24 @@ class ResourcesTest extends \Gustavus\Test\Test
   /**
    * @test
    */
+  public function renderResourceBeta()
+  {
+    // test that our beta resources aren't minified
+    $this->tearDown();
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/imageFill.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION - 0) . '&m=false';
+    $this->assertSame($expected, Resources\Resource::renderResource('imageFill'));
+
+    // not minifying, and we don't need to, won't go through the minifier
+    $this->assertSame('https://static-beta2.gac.edu/js/imageFill.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION - 0), Resources\Resource::renderResource('imageFill', false));
+
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/arst.js,/js/formBuilder.js?v=2&m=false';
+    $this->assertSame($expected, Resources\Resource::renderResource([['path' => '/js/arst.js', 'version' => 2], ['path' => '/js/formBuilder.js']]));
+
+  }
+
+  /**
+   * @test
+   */
   public function renderCSS()
   {
     $resource = ['path' => '/js/plugins/helpbox/helpbox.css'];
@@ -89,5 +115,43 @@ class ResourcesTest extends \Gustavus\Test\Test
     $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/min/f=/js/plugins/helpbox/helpbox.crush.css,/js/plugins/helpbox/helpbox.crush.css') !== false);
     $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
+  }
+
+  /**
+   * @test
+   */
+  public function crushify()
+  {
+    $resource = ['path' => '/cis/lib/Gustavus/Resources/Test/files/test.css'];
+    $options  = ['doc_root' => '/cis/lib/'];
+
+    $actual = $this->call('Gustavus\Resources\Resource', 'crushify', [$resource, true, $options]);
+    $this->assertContains('test.crush.css', $actual);
+  }
+
+  /**
+   * @test
+   */
+  public function crushifyNoUrlify()
+  {
+    $resource = ['path' => '/cis/lib/Gustavus/Resources/Test/files/test.css'];
+    $options  = ['doc_root' => '/cis/lib/'];
+
+    $actual = $this->call('Gustavus\Resources\Resource', 'crushify', [$resource, true, $options, false]);
+    $this->assertTrue(is_array($actual));
+    $this->assertContains('test.crush.css', $actual['path']);
+  }
+
+  /**
+   * @test
+   */
+  public function crushifyInline()
+  {
+    $resource = ['path' => '/cis/lib/Gustavus/Resources/Test/files/test.css'];
+    $options  = ['doc_root' => '/cis/lib/', 'crushMethod' => 'inline'];
+
+    $actual = $this->call('Gustavus\Resources\Resource', 'crushify', [$resource, true, $options]);
+    $this->assertContains('<style', $actual);
+    $this->assertContains('#testing', $actual);
   }
 }

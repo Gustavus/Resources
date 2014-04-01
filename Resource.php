@@ -93,12 +93,13 @@ class Resource
       return self::crushify($resource, $minified, $cssCrush);
     }
 
-    if ($minified) {
-      return sprintf('%s%s%s?v=%s',
+    if ($minified || strpos($resource['path'], ',') !== false) {
+      return sprintf('%s%s%s?v=%s%s',
           self::determineHost(),
           Resource::MIN_PREFIX,
           $resource['path'],
-          $resource['version']
+          $resource['version'],
+          (!self::allowMinification() ? '&m=false' : '')
       );
     } else {
       return sprintf('%s%s?v=%s',
@@ -114,7 +115,9 @@ class Resource
    *
    * @param  array    $resource   array of resource config with keys of path and version
    * @param  boolean  $minified   whether or not to minify the resource
-   * @param  array|boolean  $additionalOpts Additional options to pass to css crush
+   * @param  array|boolean  $additionalOpts Additional options to pass to css crush.
+   *   Key of 'crushMethod' is used internally to determine how to crush the file. File option returns the filename, inline returns html containing all of the styles. Defaults to file
+   *   More options can be found in <a href="http://the-echoplex.net/csscrush/#api--options">crush's documentation</a>.
    * @param  boolean  $urlify     whether or not to return the url version or the array version of this resource
    * @return string|array String if $urlify is true, otherwise an array.
    */
@@ -122,11 +125,17 @@ class Resource
   {
     if (!\Config::isBlog()) {
       // we don't want to crush files as the blog's httpd user due to permission issues, and doc_root issues.
-      if (\Config::isBeta()) {
-        // we don't want to minify beta css
+      if (!self::allowMinification()) {
+        // we don't want to minify anything
         $minified = false;
       }
       require_once 'css-crush/CssCrush.php';
+
+      if (isset($additionalOpts['crushMethod']) && in_array($additionalOpts['crushMethod'], ['file', 'inline'])) {
+        $crushMethod = $additionalOpts['crushMethod'];
+      } else {
+        $crushMethod = 'file';
+      }
 
       $cssCrushOptions = ['minify' => $minified, 'versioning' => false, 'doc_root' => '/cis/www'];
 
@@ -134,10 +143,19 @@ class Resource
         $cssCrushOptions = array_merge($cssCrushOptions, $additionalOpts);
       }
       if (class_exists('\CssCrush\CssCrush', false)) {
-        \CssCrush\CssCrush::file($resource['path'], $cssCrushOptions);
+        $crushResult = \CssCrush\CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
       } else {
-        \CssCrush::file($resource['path'], $cssCrushOptions);
+        $crushResult = \CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
       }
+    }
+
+    if ($crushMethod !== 'file') {
+      return $crushResult;
+    }
+
+    if (!isset($resource['version'])) {
+      // make sure the resource has a version
+      $resource['version'] = 1;
     }
 
     if ($urlify) {
@@ -221,6 +239,9 @@ class Resource
     // If one file increments to version 2, we want it to be version 2.
     // If two files increment to verison 2, it will be version 3.
     $return .= '?v=' . ($version - $lastKey);
+    if (!self::allowMinification()) {
+      $return .= '&m=false';
+    }
     return $return;
   }
 
@@ -239,5 +260,15 @@ class Resource
     } else {
       return 'https://static2.gac.edu';
     }
+  }
+
+  /**
+   * Whether or not we want to minify resources
+   *
+   * @return boolean
+   */
+  private static function allowMinification()
+  {
+    return !\Config::isBeta();
   }
 }
