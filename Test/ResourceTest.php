@@ -90,4 +90,42 @@ class ResourcesTest extends \Gustavus\Test\Test
     $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
   }
+
+  /**
+   * @test
+   */
+  public function crushify()
+  {
+    $resource = ['path' => '/cis/lib/Gustavus/Resources/Test/files/test.css'];
+    $options  = ['doc_root' => '/cis/lib/'];
+
+    $actual = $this->call('Gustavus\Resources\Resource', 'crushify', [$resource, true, $options]);
+    $this->assertContains('test.crush.css', $actual);
+  }
+
+  /**
+   * @test
+   */
+  public function crushifyNoUrlify()
+  {
+    $resource = ['path' => '/cis/lib/Gustavus/Resources/Test/files/test.css'];
+    $options  = ['doc_root' => '/cis/lib/'];
+
+    $actual = $this->call('Gustavus\Resources\Resource', 'crushify', [$resource, true, $options, false]);
+    $this->assertTrue(is_array($actual));
+    $this->assertContains('test.crush.css', $actual['path']);
+  }
+
+  /**
+   * @test
+   */
+  public function crushifyInline()
+  {
+    $resource = ['path' => '/cis/lib/Gustavus/Resources/Test/files/test.css'];
+    $options  = ['doc_root' => '/cis/lib/', 'crushMethod' => 'inline'];
+
+    $actual = $this->call('Gustavus\Resources\Resource', 'crushify', [$resource, true, $options]);
+    $this->assertContains('<style', $actual);
+    $this->assertContains('#testing', $actual);
+  }
 }

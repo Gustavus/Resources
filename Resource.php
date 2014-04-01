@@ -115,8 +115,8 @@ class Resource
    * @param  array    $resource   array of resource config with keys of path and version
    * @param  boolean  $minified   whether or not to minify the resource
    * @param  array|boolean  $additionalOpts Additional options to pass to css crush.
-   *   Key of 'crushMethod' with values of 'file', 'inline', or 'string' is used internally to determine how to crush the file. Defaults to file.
-   *   Other options can be found in <a href="http://the-echoplex.net/csscrush/#api--options">crush's documentation</a>.
+   *   Key of 'crushMethod' is used internally to determine how to crush the file. File option returns the filename, inline returns html containing all of the styles. Defaults to file
+   *   More options can be found in <a href="http://the-echoplex.net/csscrush/#api--options">crush's documentation</a>.
    * @param  boolean  $urlify     whether or not to return the url version or the array version of this resource
    * @return string|array String if $urlify is true, otherwise an array.
    */
@@ -130,7 +130,7 @@ class Resource
       }
       require_once 'css-crush/CssCrush.php';
 
-      if (isset($additionalOpts['crushMethod']) && in_array($additionalOpts['crushMethod'], ['file', 'inline', 'string'])) {
+      if (isset($additionalOpts['crushMethod']) && in_array($additionalOpts['crushMethod'], ['file', 'inline'])) {
         $crushMethod = $additionalOpts['crushMethod'];
       } else {
         $crushMethod = 'file';
@@ -150,6 +150,11 @@ class Resource
 
     if ($crushMethod !== 'file') {
       return $crushResult;
+    }
+
+    if (!isset($resource['version'])) {
+      // make sure the resource has a version
+      $resource['version'] = 1;
     }
 
     if ($urlify) {
