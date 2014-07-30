@@ -60,4 +60,16 @@ class Config
    * @var  integer
    */
   const SELECT2_VERSION = 2;
+
+  /**
+   * bxSlider version
+   * @var integer
+   */
+  const BXSLIDER_VERSION = 1;
+
+  /**
+   * url utility version
+   * @var integer
+   */
+  const URL_UTILITY_VERSION = 1;
 }

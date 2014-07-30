@@ -52,6 +52,12 @@ class Resource
           return ['path' => '/js/jquery/select2/select2.js', 'version' => Config::SELECT2_VERSION];
       case 'select2-css' :
           return ['path' => '/js/jquery/select2/select2.css', 'version' => Config::SELECT2_VERSION];
+      case 'bxslider':
+          return ['path' => '/js/jquery/bxSlider/jquery.bxslider.js', 'version' => Config::BXSLIDER_VERSION];
+      case 'bxslider-css':
+          return ['path' => '/js/jquery/bxSlider/jquery.bxslider.css', 'version' => Config::BXSLIDER_VERSION];
+      case 'urlutil':
+          return ['path' => '/js/utility/url.js', 'version' => Config::URL_UTILITY_VERSION];
 
       default :
           return false;
