@@ -31,7 +31,7 @@ class Resource
       case 'imagefill' :
           return ['path' => '/js/imageFill.js', 'version' => Config::IMAGE_FILL_JS_VERSION];
       case 'tinymce' :
-          return ['path' => '/js/tinymce/jscripts/tiny_mce/jquery.tinymce.js', 'version' => Config::TINYMCE_VERSION];
+          return ['path' => '/js/tinymce4.1/jquery.tinymce.min.js', 'version' => Config::TINYMCE_VERSION];
       case 'tinymceconfig' :
           return ['path' => '/js/tinymce-config.js', 'version' => Config::TINYMCE_CONFIG_VERSION];
       case 'qtip' :
