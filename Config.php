@@ -71,5 +71,11 @@ class Config
    * url utility version
    * @var integer
    */
-  const URL_UTILITY_VERSION = 1;
+  const URL_UTILITY_VERSION = 2;
+
+  /**
+   * Gustavus.jQuery.Dropdown version
+   * @var integer
+   */
+  const DROPDOWN_VERSION = 1;
 }

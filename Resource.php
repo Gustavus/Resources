@@ -57,7 +57,11 @@ class Resource
       case 'bxslider-css':
           return ['path' => '/js/jquery/bxSlider/jquery.bxslider.css', 'version' => Config::BXSLIDER_VERSION];
       case 'urlutil':
-          return ['path' => '/js/utility/url.js', 'version' => Config::URL_UTILITY_VERSION];
+          return ['path' => '/js/Gustavus/Utility/url.js', 'version' => Config::URL_UTILITY_VERSION];
+      case 'dropdown':
+          return ['path' => '/js/Gustavus/jquery/Dropdown.js', 'version' => Config::DROPDOWN_VERSION];
+      case 'dropdown-css':
+          return ['path' => '/js/Gustavus/jquery/Dropdown.css', 'version' => Config::DROPDOWN_VERSION];
 
       default :
           return false;
