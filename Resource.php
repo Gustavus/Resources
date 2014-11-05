@@ -33,7 +33,7 @@ class Resource
       case 'tinymce' :
           return ['path' => '/js/tinymce4.1/jquery.tinymce.min.js', 'version' => Config::TINYMCE_VERSION];
       case 'tinymceconfig' :
-          return ['path' => '/js/tinymce-config.js', 'version' => Config::TINYMCE_CONFIG_VERSION];
+          return ['path' => '/js/Gustavus/TinyMCE.js', 'version' => Config::TINYMCE_CONFIG_VERSION];
       case 'qtip' :
           return ['path' => '/js/jquery/qTip2/dist/jquery.qtip.min.js', 'version' => Config::QTIP_VERSION];
       case 'qtip-css' :
