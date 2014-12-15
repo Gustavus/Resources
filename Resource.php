@@ -139,7 +139,6 @@ class Resource
         // we don't want to minify anything
         $minified = false;
       }
-      require_once 'css-crush/CssCrush.php';
 
       if (isset($additionalOpts['crushMethod']) && in_array($additionalOpts['crushMethod'], ['file', 'inline'])) {
         $crushMethod = $additionalOpts['crushMethod'];
@@ -152,11 +151,9 @@ class Resource
       if (is_array($additionalOpts)) {
         $cssCrushOptions = array_merge($cssCrushOptions, $additionalOpts);
       }
-      if (class_exists('\CssCrush\CssCrush', false)) {
-        $crushResult = \CssCrush\CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
-      } else {
-        $crushResult = \CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
-      }
+
+      $crushResult = \CssCrush\CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
+
       if ($crushMethod !== 'file') {
         return $crushResult;
       }
