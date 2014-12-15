@@ -62,6 +62,10 @@ class Resource
           return ['path' => '/js/Gustavus/jquery/Dropdown.js', 'version' => Config::DROPDOWN_VERSION];
       case 'dropdown-css':
           return ['path' => '/js/Gustavus/jquery/Dropdown.css', 'version' => Config::DROPDOWN_VERSION];
+      case 'isotope':
+          return ['path' => '/js/jquery/isotope/dist/isotope.pkgd.min.js', 'version' => Config::ISOTOPE_VERSION];
+      case 'imagesloaded':
+          return ['path' => '/js/jquery/imagesloaded/imagesloaded.pkgd.min.js', 'version' => Config::IMAGESLOADED_VERSION];
 
       default :
           return false;
