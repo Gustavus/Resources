@@ -90,4 +90,10 @@ class Config
    * @var integer
    */
   const IMAGESLOADED_VERSION = 1;
+
+  /**
+   * JW Player version
+   * @var integer
+   */
+  const PLAYER_VERSION = 1;
 }

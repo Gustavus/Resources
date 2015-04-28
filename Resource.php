@@ -67,6 +67,8 @@ class Resource
       // ImagesLoaded is primarily used with Isotope to relayout when images finish loading.
       case 'imagesloaded':
           return ['path' => '/js/jquery/imagesloaded/imagesloaded.pkgd.min.js', 'version' => Config::IMAGESLOADED_VERSION];
+      case 'player':
+          return ['path' => '/js/Gustavus/Player.js', 'version' => Config::PLAYER_VERSION];
 
       default :
           return false;
