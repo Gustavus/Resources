@@ -78,4 +78,22 @@ class Config
    * @var integer
    */
   const DROPDOWN_VERSION = 1;
+
+  /**
+   * Isotope version
+   * @var integer
+   */
+  const ISOTOPE_VERSION = 1;
+
+  /**
+   * ImagesLoaded version
+   * @var integer
+   */
+  const IMAGESLOADED_VERSION = 1;
+
+  /**
+   * JW Player version
+   * @var integer
+   */
+  const PLAYER_VERSION = 1;
 }
