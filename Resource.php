@@ -62,6 +62,13 @@ class Resource
           return ['path' => '/js/Gustavus/jquery/Dropdown.js', 'version' => Config::DROPDOWN_VERSION];
       case 'dropdown-css':
           return ['path' => '/js/Gustavus/jquery/Dropdown.css', 'version' => Config::DROPDOWN_VERSION];
+      case 'isotope':
+          return ['path' => '/js/jquery/isotope/dist/isotope.pkgd.min.js', 'version' => Config::ISOTOPE_VERSION];
+      // ImagesLoaded is primarily used with Isotope to relayout when images finish loading.
+      case 'imagesloaded':
+          return ['path' => '/js/jquery/imagesloaded/imagesloaded.pkgd.min.js', 'version' => Config::IMAGESLOADED_VERSION];
+      case 'player':
+          return ['path' => '/js/Gustavus/Player.js', 'version' => Config::PLAYER_VERSION];
 
       default :
           return false;
