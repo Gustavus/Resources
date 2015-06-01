@@ -17,7 +17,7 @@ class Config
    * tinymce config version
    * @var integer
    */
-  const TINYMCE_CONFIG_VERSION = 6;
+  const TINYMCE_CONFIG_VERSION = 7;
 
   /**
    * tinymce version
