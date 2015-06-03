@@ -92,8 +92,8 @@ class Config
   const IMAGESLOADED_VERSION = 1;
 
   /**
-   * JW Player version
+   * Gustavus Player version
    * @var integer
    */
-  const PLAYER_VERSION = 1;
+  const PLAYER_VERSION = 2;
 }
