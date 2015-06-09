@@ -45,9 +45,9 @@ class Resource
       case 'crc32' :
           return ['path' => '/js/crc32.js', 'version' => Config::CRC32_VERSION];
       case 'socialpopover' :
-          return ['path' => '/js/plugins/socialMedia/socialPopover.js', 'version' => Config::SOCIAL_POPOVER_VERSION];
+          return ['path' => '/js/plugins/socialPopover/socialPopover.js', 'version' => Config::SOCIAL_POPOVER_VERSION];
       case 'socialpopover-css' :
-          return ['path' => '/js/plugins/socialMedia/socialPopover.css', 'version' => Config::SOCIAL_POPOVER_VERSION];
+          return ['path' => '/js/plugins/socialPopover/socialPopover.css', 'version' => Config::SOCIAL_POPOVER_VERSION];
       case 'select2' :
           return ['path' => '/js/jquery/select2/select2.js', 'version' => Config::SELECT2_VERSION];
       case 'select2-css' :
