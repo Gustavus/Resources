@@ -29,7 +29,7 @@ class Config
    * imageFill version
    * @var integer
    */
-  const IMAGE_FILL_JS_VERSION = 3;
+  const IMAGE_FILL_JS_VERSION = 4;
 
   /**
    * qtip version
@@ -92,8 +92,8 @@ class Config
   const IMAGESLOADED_VERSION = 1;
 
   /**
-   * JW Player version
+   * Gustavus Player version
    * @var integer
    */
-  const PLAYER_VERSION = 1;
+  const PLAYER_VERSION = 2;
 }
