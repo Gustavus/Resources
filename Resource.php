@@ -39,15 +39,15 @@ class Resource
       case 'qtip-css' :
           return ['path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css', 'version' => Config::QTIP_VERSION];
       case 'helpbox' :
-          return ['path' => '/js/plugins/helpbox/helpbox.js', 'version' => Config::HELPBOX_VERSION];
+          return ['path' => '/template/js/plugins/helpbox/helpbox.js', 'version' => Config::HELPBOX_VERSION];
       case 'helpbox-css' :
-          return ['path' => '/js/plugins/helpbox/helpbox.css', 'version' => Config::HELPBOX_VERSION];
+          return ['path' => '/template/js/plugins/helpbox/helpbox.css', 'version' => Config::HELPBOX_VERSION];
       case 'crc32' :
           return ['path' => '/js/crc32.js', 'version' => Config::CRC32_VERSION];
       case 'socialpopover' :
-          return ['path' => '/js/plugins/socialPopover/socialPopover.js', 'version' => Config::SOCIAL_POPOVER_VERSION];
+          return ['path' => '/template/js/plugins/socialPopover/socialPopover.js', 'version' => Config::SOCIAL_POPOVER_VERSION];
       case 'socialpopover-css' :
-          return ['path' => '/js/plugins/socialPopover/socialPopover.css', 'version' => Config::SOCIAL_POPOVER_VERSION];
+          return ['path' => '/template/js/plugins/socialPopover/socialPopover.css', 'version' => Config::SOCIAL_POPOVER_VERSION];
       case 'select2' :
           return ['path' => '/js/jquery/select2/select2.js', 'version' => Config::SELECT2_VERSION];
       case 'select2-css' :
