@@ -53,7 +53,7 @@ class Config
    * socialpopover version
    * @var  integer
    */
-  const SOCIAL_POPOVER_VERSION = 4;
+  const SOCIAL_POPOVER_VERSION = 5;
 
   /**
    * Select2 version
