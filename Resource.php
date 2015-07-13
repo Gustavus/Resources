@@ -158,6 +158,11 @@ class Resource
       if (is_array($additionalOpts)) {
         $cssCrushOptions = array_merge($cssCrushOptions, $additionalOpts);
       }
+      if (isset($cssCrushOptions['vars'])) {
+        $cssCrushOptions['vars'] = array_merge($cssCrushOptions['vars'], Config::$globalCrushVariables);
+      } else {
+        $cssCrushOptions['vars'] = Config::$globalCrushVariables;
+      }
 
       $crushResult = \CssCrush\CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
 
@@ -170,6 +175,8 @@ class Resource
       // make sure the resource has a version
       $resource['version'] = 1;
     }
+    // add the version of our global variables so the browser doesn't use a version with old variables
+    $resource['version'] += Config::GLOBAL_CRUSH_VARIABLES_VERSION;
 
     if ($urlify) {
       return sprintf('%s%s?v=%s',

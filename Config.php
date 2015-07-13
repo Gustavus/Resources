@@ -96,4 +96,100 @@ class Config
    * @var integer
    */
   const PLAYER_VERSION = 2;
+
+  /**
+   * Version of crush's global variables.
+   *   This number gets added onto any crushed resources versions
+   *
+   *   <strong>Note:</strong> Update this when modifying the globalCrushVariables variable
+   *
+   * @var  integer
+   */
+  const GLOBAL_CRUSH_VARIABLES_VERSION = 0;
+
+  /**
+   * Array of global variables accessible to cssCrush
+   *
+   * <strong>Note:</strong> Update the GLOBAL_CRUSH_VARIABLES_VERSION when updating this array.
+   *
+   * @var array
+   */
+  public static $globalCrushVariables = [
+    // Device Breakpoints (Media Queries)
+    'mobile'  => '(max-width: 767px)',
+    'tablet'  => '(min-width: 768px) and (max-width: 1024px)',
+    'desktop' => '(min-width: 1025px)',
+
+    // New Design Colors
+    'web-black'          => '111315',
+    'web-background'     => 'EFEFEF',
+    'web-light-gray'     => 'CFD4D8',
+    'web-light-gray-90'  => 'D1D7DA',
+    'web-light-gray-alt' => '959DA0',
+    'web-medium-gray'    => '373E42',
+    'web-medium-gray-90' => '4A4F53',
+    'web-dark-gray'      => '23272B',
+    'brand-blue-30'      => 'A7C1D4',
+    'brand-blue-50'      => '77A2C2',
+    'brand-blue-75'      => '3C7CAC',
+    'brand-blue-90'      => '17659E',
+    'brand-gold-90'      => 'FDD217',
+    'brand-red-50'       => 'D79084',
+    'brand-red-75'       => 'CB614F',
+    'brand-red-90'       => 'C4442F',
+    //'web-blue'         => '1C5681'
+    'auxbox-blue'        => '164C78',
+
+
+    // Gustavue Pallete
+    'brand-gold'              => 'FFCF00',
+    'brand-orange'            => 'D4891C',
+    'brand-brown'             => '4B3900',
+    'brand-red'               => 'BF311A',
+    'brand-teal'              => '005958',
+    'brand-green'             => '788E1E',
+    'brand-blue'              => '005695',
+    'brand-purple'            => '49182D',
+    'brand-pale-yellow'       => 'FFECBC',
+    'brand-pale-green'        => 'D4DB90',
+    'brand-pale-blue'         => 'C1D4E3',
+    'brand-warm-gray'         => 'EDE7DD',
+    'brand-shadow-gray'       => 'DDDDDD',
+
+    'better-pale-yellow'      => 'FFFEFA',
+    'better-pale-yellow-dark' => 'F9F7EE',
+    'better-pale-blue'        => 'E2E8F8',
+
+    // Social Colors
+    'facebook-blue'  => '3B5998',
+    'twitter-blue'   => '55ACEE',
+    'instagram-blue' => '3F729b',
+    'flickr-blue'    => '0063DC',
+    'flickr-pink'    => 'FF0084',
+    'youtube-red'    => 'E52D27',
+    'rss-orange'     => 'FF6600',
+
+    // Fonts
+    //'serif' => '"Hoefler Text", Constantia, Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif',
+    'sans-serif' => 'Arial, "Helvetica Neue", Helvetica, sans-serif',
+    'monospace'  => '"Lucida Console", Monaco, monospace',
+
+    // Speeds for Effects and Transitions
+    'fx-fast-seconds'   => '.15s',
+    'fx-fast-ms'        => '150',
+    'fx-normal-seconds' => '.25s',
+    'fx-normal-ms'      => '250',
+    'fx-slow-seconds'   => '.5s',
+    'fx-slow-ms'        => '500',
+
+    // Sizes
+    'banner-height' => '600',
+
+    'utility-bar-height'         => '45',
+    'mastmenu-bar-height'        => '110',
+    'mastmenu-bar-height-tablet' => '94',
+
+    'base-font-size'   => '15px',
+    'base-line-height' => '1.5em',
+  ];
 }
