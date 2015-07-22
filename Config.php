@@ -17,13 +17,13 @@ class Config
    * tinymce config version
    * @var integer
    */
-  const TINYMCE_CONFIG_VERSION = 7;
+  const TINYMCE_CONFIG_VERSION = 8;
 
   /**
    * tinymce version
    * @var integer
    */
-  const TINYMCE_VERSION = 2;
+  const TINYMCE_VERSION = 1;
 
   /**
    * imageFill version
