@@ -156,9 +156,10 @@ class Config
     'brand-warm-gray'         => 'EDE7DD',
     'brand-shadow-gray'       => 'DDDDDD',
 
-    'better-pale-yellow'      => 'FFFEFA',
-    'better-pale-yellow-dark' => 'F9F7EE',
-    'better-pale-blue'        => 'E2E8F8',
+    // @todo search for uses of these
+    // 'better-pale-yellow'      => 'FFFEFA',
+    // 'better-pale-yellow-dark' => 'F9F7EE',
+    // 'better-pale-blue'        => 'E2E8F8',
 
     // Social Colors
     'facebook-blue'  => '3B5998',
@@ -183,10 +184,10 @@ class Config
     'fx-slow-ms'        => '500',
 
     // Sizes
-    'banner-height' => '600',
+    'banner-height' => '550',
 
     'utility-bar-height'         => '45',
-    'mastmenu-bar-height'        => '110',
+    'mastmenu-bar-height'        => '100',
     'mastmenu-bar-height-tablet' => '94',
 
     'base-font-size'   => '15px',
