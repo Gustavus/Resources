@@ -136,11 +136,43 @@ class ResourcesTest extends \Gustavus\Test\Test
   {
 
     $original = $this->get('\Gustavus\Resources\Resource', 'defaultResources');
-    $this->set('\Gustavus\Resources\Resource', 'defaultResources', ['select2' => [['path' => '/js/jquery/select2/select2.css', 'version' => 1, 'crush' => true], ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1]]]);
-    $expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/select2/select2.crush.css,/js/Gustavus/select2.custom.css';
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', [
+        'select2' => [
+          ['path' => '/js/jquery/select2/select2.css', 'version' => 1, 'crush' => true],
+          ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1]
+        ],
+        'qtip-css'        => [
+          'path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css'
+        ]
+    ]);
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/qTip2/dist/jquery.qtip.min.css,/js/jquery/select2/select2.crush.css,/js/Gustavus/select2.custom.css,/template/js/plugins/helpbox/helpbox.crush.css';
     $options['doc_root'] = '/cis/www/';
-    $actual = Resources\Resource::renderCSS(['select2'], true, $options);
-    $this->assertTrue(strpos($actual, $expected) !== false);
+    $actual = Resources\Resource::renderCSS(['qtip-css', 'select2', ['path' => '/template/js/plugins/helpbox/helpbox.css']], true, $options);
+    $this->assertContains($expected, $actual);
+    $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
+  }
+
+  /**
+   * @test
+   */
+  public function renderResourcesCSSSubArrays()
+  {
+
+    $original = $this->get('\Gustavus\Resources\Resource', 'defaultResources');
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', [
+        'select2' => [
+          ['path' => '/js/jquery/select2/select2.css', 'version' => 1, 'crush' => true],
+          ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1]
+        ],
+        'qtip-css'        => [
+          'path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css'
+        ]
+    ]);
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/qTip2/dist/jquery.qtip.min.css,/js/jquery/select2/select2.css,/js/Gustavus/select2.custom.css,/template/js/plugins/helpbox/helpbox.css';
+    $options['doc_root'] = '/cis/www/';
+    $actual = Resources\Resource::renderResource(['qtip-css', 'select2', ['path' => '/template/js/plugins/helpbox/helpbox.css']]);
+    $this->assertContains($expected, $actual);
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
     $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
   }

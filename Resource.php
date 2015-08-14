@@ -312,7 +312,7 @@ class Resource
           } else {
             $firstResource = $resource[0];
             // add all the resources to our array to make sure they get included
-            $resourceNames = array_merge(array_splice($resourceNames, 0, $i - 1), $resource, array_splice($resourceNames, $i + 1));
+            $resourceNames = array_merge(array_splice($resourceNames, 0, $i), $resource, array_splice($resourceNames, $i));
             // we added resources, so we need to increment the lastKey variable
             $lastKey += count($resource) - 1;
             $resource = $firstResource;
