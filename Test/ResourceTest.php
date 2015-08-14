@@ -143,15 +143,6 @@ class ResourcesTest extends \Gustavus\Test\Test
     $this->assertTrue(strpos($actual, $expected) !== false);
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
     $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
-
-
-
-    // $resource = [['path' => '/template/js/plugins/helpbox/helpbox.css'], ['path' => '/template/js/plugins/helpbox/helpbox.css']];
-    // $options['doc_root'] = '/cis/www/';
-    // $actual = Resources\Resource::renderCSS($resource, true, $options);
-    // $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/min/f=/template/js/plugins/helpbox/helpbox.crush.css,/template/js/plugins/helpbox/helpbox.crush.css') !== false);
-    // $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
-    // $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
   }
 
   /**
