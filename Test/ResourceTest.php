@@ -76,6 +76,18 @@ class ResourcesTest extends \Gustavus\Test\Test
   /**
    * @test
    */
+  public function renderResourcesWithSubArrays()
+  {
+    $original = $this->get('\Gustavus\Resources\Resource', 'defaultResources');
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', ['select2' => [['path' => '/js/jquery/select2/select2.css', 'version' => 1], ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1]]]);
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/select2/select2.css,/js/Gustavus/select2.custom.css?v=1';
+    $this->assertSame($expected, Resources\Resource::renderResource(['select2']));
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
+  }
+
+  /**
+   * @test
+   */
   public function renderResourceBeta()
   {
     // test that our beta resources aren't minified
@@ -96,10 +108,10 @@ class ResourcesTest extends \Gustavus\Test\Test
    */
   public function renderCSS()
   {
-    $resource = ['path' => '/js/plugins/helpbox/helpbox.css'];
+    $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderCSS($resource, true, $options);
-    $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/js/plugins/helpbox/helpbox.crush.css') !== false);
+    $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.crush.css') !== false);
     $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
   }
@@ -109,12 +121,37 @@ class ResourcesTest extends \Gustavus\Test\Test
    */
   public function renderCSSMultiple()
   {
-    $resource = [['path' => '/js/plugins/helpbox/helpbox.css'], ['path' => '/js/plugins/helpbox/helpbox.css']];
+    $resource = [['path' => '/template/js/plugins/helpbox/helpbox.css'], ['path' => '/template/js/plugins/helpbox/helpbox.css']];
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderCSS($resource, true, $options);
-    $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/min/f=/js/plugins/helpbox/helpbox.crush.css,/js/plugins/helpbox/helpbox.crush.css') !== false);
+    $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/min/f=/template/js/plugins/helpbox/helpbox.crush.css,/template/js/plugins/helpbox/helpbox.crush.css') !== false);
     $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
+  }
+
+  /**
+   * @test
+   */
+  public function renderCSSSubArrays()
+  {
+
+    $original = $this->get('\Gustavus\Resources\Resource', 'defaultResources');
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', ['select2' => [['path' => '/js/jquery/select2/select2.css', 'version' => 1, 'crush' => true], ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1]]]);
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/select2/select2.crush.css,/js/Gustavus/select2.custom.css';
+    $options['doc_root'] = '/cis/www/';
+    $actual = Resources\Resource::renderCSS(['select2'], true, $options);
+    $this->assertTrue(strpos($actual, $expected) !== false);
+    $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
+
+
+
+    // $resource = [['path' => '/template/js/plugins/helpbox/helpbox.css'], ['path' => '/template/js/plugins/helpbox/helpbox.css']];
+    // $options['doc_root'] = '/cis/www/';
+    // $actual = Resources\Resource::renderCSS($resource, true, $options);
+    // $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/min/f=/template/js/plugins/helpbox/helpbox.crush.css,/template/js/plugins/helpbox/helpbox.crush.css') !== false);
+    // $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
+    // $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
   }
 
   /**

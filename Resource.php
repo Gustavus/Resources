@@ -19,6 +19,98 @@ class Resource
    */
   const MIN_PREFIX = '/min/f=';
 
+  private static $defaultResources = [
+    'imagefill'       => [
+      'path' => '/js/imageFill.js', 'version' => Config::IMAGE_FILL_JS_VERSION
+    ],
+    'tinymce'         => [
+      'path' => '/js/tinymce4.2.2/jquery.tinymce.min.js', 'version' => Config::TINYMCE_VERSION
+    ],
+    'tinymceconfig'   => [
+      'path' => '/js/Gustavus/TinyMCE.js', 'version' => Config::TINYMCE_CONFIG_VERSION
+    ],
+    'qtip'            => [
+      'path' => '/js/jquery/qTip2/dist/jquery.qtip.min.js', 'version' => Config::QTIP_VERSION
+    ],
+    'qtip-css'        => [
+      'path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css', 'version' => Config::QTIP_VERSION
+    ],
+    'helpbox'         => [
+      'path' => '/template/js/plugins/helpbox/helpbox.js', 'version' => Config::HELPBOX_VERSION
+    ],
+    'helpbox-css'     => [
+      'path' => '/template/js/plugins/helpbox/helpbox.css', 'version' => Config::HELPBOX_VERSION
+    ],
+    'crc32'           => [
+      'path' => '/js/crc32.js', 'version' => Config::CRC32_VERSION
+    ],
+    'socialpopover'   => [
+      'path' => '/template/js/plugins/socialPopover/socialPopover.js', 'version' => Config::SOCIAL_POPOVER_VERSION
+    ],
+    'socialpopover-css'        => [
+      'path' => '/template/js/plugins/socialPopover/socialPopover.css', 'version' => Config::SOCIAL_POPOVER_VERSION
+    ],
+    'select2'         => [
+      'path' => '/js/jquery/select2/select2.js', 'version' => Config::SELECT2_VERSION
+    ],
+    'select2-css'     => [
+      [
+        'path' => '/js/jquery/select2/select2.css',
+        'version' => Config::SELECT2_VERSION,
+      ],
+      [
+        'path' => '/js/Gustavus/css/select2.custom.css',
+        'version' => Config::SELECT2_CUSTOM_CSS_VERSION,
+        'crush' => true,
+      ],
+    ],
+    'bxslider'        => [
+      'path' => '/js/jquery/bxSlider/jquery.bxslider.js', 'version' => Config::BXSLIDER_VERSION
+    ],
+    'bxslider-css'    => [
+      'path' => '/js/jquery/bxSlider/jquery.bxslider.css', 'version' => Config::BXSLIDER_VERSION
+    ],
+    'urlutil'         => [
+      'path' => '/js/Gustavus/Utility/url.js', 'version' => Config::URL_UTILITY_VERSION
+    ],
+    'dropdown'        => [
+      'path' => '/js/Gustavus/jquery/Dropdown.js', 'version' => Config::DROPDOWN_VERSION
+    ],
+    'dropdown-css'    => [
+      'path' => '/js/Gustavus/jquery/Dropdown.css', 'version' => Config::DROPDOWN_VERSION
+    ],
+    'isotope'         => [
+      'path' => '/js/jquery/isotope/dist/isotope.pkgd.min.js', 'version' => Config::ISOTOPE_VERSION
+    ],
+    // ImagesLoaded is primarily used with Isotope to relayout when images finish loading.
+    'imagesloaded'    => [
+      'path' => '/js/jquery/imagesloaded/imagesloaded.pkgd.min.js', 'version' => Config::IMAGESLOADED_VERSION
+    ],
+    'player'          => [
+      'path' => '/js/Gustavus/Player.js', 'version' => Config::PLAYER_VERSION
+    ],
+    // 'datatables'   => ['path' => '/js/jquery/DataTables/media/js/jquery.dataTables.js', 'version' => 1],
+    // 'datatables-responsive' => ['path' => '/js/jquery/DataTables/plugins/Responsive/js/dataTables.responsive.js', 'version' => 1],
+    'footable'        => [
+      'path' => '/js/jquery/FooTable/js/footable.js', 'version' => 1
+    ],
+    'footable-sort'   => [
+      'path' => '/js/jquery/FooTable/js/footable.sort.js', 'version' => 1
+    ],
+    'footable-filter' => [
+      'path' => '/js/jquery/FooTable/dist/footable.filter.min.js', 'version' => 1
+    ],
+    'footable-stripe' => [
+      'path' => '/js/jquery/FooTable/js/footable.striping.js', 'version' => 1
+    ],
+    'footable-trimmer'         => [
+      'path' => '/js/jquery/FooTable/gac/footable.trimmer.js', 'version' => 1
+    ],
+    'footable-css'    => [
+      'path' => '/js/jquery/FooTable/gac/footable.gac.css', 'version' => 1
+    ],
+  ];
+
   /**
    * Gets the path and version for a specific resource
    *
@@ -27,52 +119,11 @@ class Resource
    */
   private static function getResourceInfo($resourceName)
   {
-    switch (strtolower($resourceName)) {
-      case 'imagefill' :
-          return ['path' => '/js/imageFill.js', 'version' => Config::IMAGE_FILL_JS_VERSION];
-      case 'tinymce' :
-          return ['path' => '/js/tinymce4.2.2/jquery.tinymce.min.js', 'version' => Config::TINYMCE_VERSION];
-      case 'tinymceconfig' :
-          return ['path' => '/js/Gustavus/TinyMCE.js', 'version' => Config::TINYMCE_CONFIG_VERSION];
-      case 'qtip' :
-          return ['path' => '/js/jquery/qTip2/dist/jquery.qtip.min.js', 'version' => Config::QTIP_VERSION];
-      case 'qtip-css' :
-          return ['path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css', 'version' => Config::QTIP_VERSION];
-      case 'helpbox' :
-          return ['path' => '/template/js/plugins/helpbox/helpbox.js', 'version' => Config::HELPBOX_VERSION];
-      case 'helpbox-css' :
-          return ['path' => '/template/js/plugins/helpbox/helpbox.css', 'version' => Config::HELPBOX_VERSION];
-      case 'crc32' :
-          return ['path' => '/js/crc32.js', 'version' => Config::CRC32_VERSION];
-      case 'socialpopover' :
-          return ['path' => '/template/js/plugins/socialPopover/socialPopover.js', 'version' => Config::SOCIAL_POPOVER_VERSION];
-      case 'socialpopover-css' :
-          return ['path' => '/template/js/plugins/socialPopover/socialPopover.css', 'version' => Config::SOCIAL_POPOVER_VERSION];
-      case 'select2' :
-          return ['path' => '/js/jquery/select2/select2.js', 'version' => Config::SELECT2_VERSION];
-      case 'select2-css' :
-          return ['path' => '/js/jquery/select2/select2.css', 'version' => Config::SELECT2_VERSION];
-      case 'bxslider':
-          return ['path' => '/js/jquery/bxSlider/jquery.bxslider.js', 'version' => Config::BXSLIDER_VERSION];
-      case 'bxslider-css':
-          return ['path' => '/js/jquery/bxSlider/jquery.bxslider.css', 'version' => Config::BXSLIDER_VERSION];
-      case 'urlutil':
-          return ['path' => '/js/Gustavus/Utility/url.js', 'version' => Config::URL_UTILITY_VERSION];
-      case 'dropdown':
-          return ['path' => '/js/Gustavus/jquery/Dropdown.js', 'version' => Config::DROPDOWN_VERSION];
-      case 'dropdown-css':
-          return ['path' => '/js/Gustavus/jquery/Dropdown.css', 'version' => Config::DROPDOWN_VERSION];
-      case 'isotope':
-          return ['path' => '/js/jquery/isotope/dist/isotope.pkgd.min.js', 'version' => Config::ISOTOPE_VERSION];
-      // ImagesLoaded is primarily used with Isotope to relayout when images finish loading.
-      case 'imagesloaded':
-          return ['path' => '/js/jquery/imagesloaded/imagesloaded.pkgd.min.js', 'version' => Config::IMAGESLOADED_VERSION];
-      case 'player':
-          return ['path' => '/js/Gustavus/Player.js', 'version' => Config::PLAYER_VERSION];
-
-      default :
-          return false;
+    $resourceName = strtolower($resourceName);
+    if (isset(self::$defaultResources[$resourceName])) {
+      return self::$defaultResources[$resourceName];
     }
+    return false;
   }
 
   /**
@@ -94,7 +145,13 @@ class Resource
       }
     } else {
       $resource = Resource::getResourceInfo($resourceName);
+
+      if (is_array($resource) && !array_key_exists('path', $resource)) {
+        // we have multiple resources in this default config
+        return Resource::renderResources($resource);
+      }
     }
+
     if ($resource === false) {
       // resource not found.
       return '';
@@ -207,7 +264,17 @@ class Resource
       $crushedResources = [];
       foreach ($resourceName as $resource) {
         if (!is_array($resource)) {
-          $crushedResources[] = self::getResourceInfo($resource);
+          $defaultResources = self::getResourceInfo($resource);
+          if (!is_array($defaultResources) || array_key_exists('path', $defaultResources)) {
+            $defaultResources = [$defaultResources];
+          }
+
+          foreach ($defaultResources as $defaultResource) {
+            if (isset($defaultResource['crush']) && $defaultResource['crush']) {
+              $defaultResource = self::crushify($defaultResource, $minified, $cssCrushOptions, false);
+            }
+            $crushedResources[] = $defaultResource;
+          }
         } else {
           $crushedResources[] = self::crushify($resource, $minified, $cssCrushOptions, false);
         }
@@ -230,20 +297,34 @@ class Resource
     $version = 0;
     $lastKey = count($resourceNames) - 1;
 
-    foreach ($resourceNames as $key => $resourceName) {
+    for ($i = 0; $i <= $lastKey; ++$i) {
+      $resourceName = $resourceNames[$i];
       if (is_array($resourceName) && array_key_exists('path', $resourceName)) {
         // we have all the info we need already
         $resource = $resourceName;
       } else {
         // try to find the resource internally
         $resource = Resource::getResourceInfo($resourceName);
+        if (is_array($resource) && !array_key_exists('path', $resource)) {
+          // we got multiple resources for this resourceName
+          if (count($resource) === 1) {
+            $resource = $resource[0];
+          } else {
+            $firstResource = $resource[0];
+            // add all the resources to our array to make sure they get included
+            $resourceNames = array_merge(array_splice($resourceNames, 0, $i - 1), $resource, array_splice($resourceNames, $i + 1));
+            // we added resources, so we need to increment the lastKey variable
+            $lastKey += count($resource) - 1;
+            $resource = $firstResource;
+          }
+        }
       }
       if ($resource === false) {
         // resource not found. keep going
         continue;
       }
 
-      if ($key === $lastKey) {
+      if ($i === $lastKey) {
         $return .= $resource['path'];
       } else {
         $return .= "{$resource['path']},";

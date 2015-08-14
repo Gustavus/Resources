@@ -98,6 +98,11 @@ class Config
   const PLAYER_VERSION = 2;
 
   /**
+   * Version of our custom select2 css overrides
+   */
+  const SELECT2_CUSTOM_CSS_VERSION = 1;
+
+  /**
    * Version of crush's global variables.
    *   This number gets added onto any crushed resources versions
    *
