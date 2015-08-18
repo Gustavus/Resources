@@ -132,23 +132,24 @@ class Resource
    * @param  string|array  $resourceName Either a single resource name, an array of resource names or resource info, or an array of resource info
    * @param  boolean $minified Whether we should minify the code or not
    * @param  boolean|array $cssCrush Whether we should pass this through cssCrush or not. Could be an array of options to pass to cssCrush.
+   * @param  boolean $includeHost Whether to include the host in the returned url
    * @return string
    */
-  public static function renderResource($resourceName, $minified = true, $cssCrush = false)
+  public static function renderResource($resourceName, $minified = true, $cssCrush = false, $includeHost = true)
   {
     if (is_array($resourceName)) {
       if (array_key_exists('path', $resourceName)) {
         // single resource with info
         $resource = $resourceName;
       } else {
-        return Resource::renderResources($resourceName);
+        return Resource::renderResources($resourceName, $includeHost);
       }
     } else {
       $resource = Resource::getResourceInfo($resourceName);
 
       if (is_array($resource) && !array_key_exists('path', $resource)) {
         // we have multiple resources in this default config
-        return Resource::renderResources($resource);
+        return Resource::renderResources($resource, $includeHost);
       }
     }
 
@@ -164,12 +165,12 @@ class Resource
 
     if ($cssCrush !== false && substr($resource['path'], -4) === '.css') {
       // css file. Let's pass this through css crush and return the crushed file
-      return self::crushify($resource, $minified, $cssCrush);
+      return self::crushify($resource, $minified, $cssCrush, true, $includeHost);
     }
 
     if ($minified || strpos($resource['path'], ',') !== false) {
       return sprintf('%s%s%s?v=%s%s',
-          self::determineHost(),
+          ($includeHost ? self::determineHost() : ''),
           Resource::MIN_PREFIX,
           $resource['path'],
           $resource['version'],
@@ -177,7 +178,7 @@ class Resource
       );
     } else {
       return sprintf('%s%s?v=%s',
-          self::determineHost(),
+          ($includeHost ? self::determineHost() : ''),
           $resource['path'],
           $resource['version']
       );
@@ -193,9 +194,10 @@ class Resource
    *   Key of 'crushMethod' is used internally to determine how to crush the file. File option returns the filename, inline returns html containing all of the styles. Defaults to file
    *   More options can be found in <a href="http://the-echoplex.net/csscrush/#api--options">crush's documentation</a>.
    * @param  boolean  $urlify     whether or not to return the url version or the array version of this resource
+   * @param  boolean $includeHost Whether to include the host in the returned url
    * @return string|array String if $urlify is true, otherwise an array.
    */
-  private static function crushify($resource, $minified, $additionalOpts, $urlify = true)
+  private static function crushify($resource, $minified, $additionalOpts, $urlify = true, $includeHost = true)
   {
     if (!\Config::isBlog()) {
       // we don't want to crush files as the blog's httpd user due to permission issues, and doc_root issues.
@@ -237,7 +239,7 @@ class Resource
 
     if ($urlify) {
       return sprintf('%s%s?v=%s',
-          self::determineHost(),
+          ($includeHost ? self::determineHost() : ''),
           str_replace('.css', '.crush.css', $resource['path']),
           $resource['version']
       );
@@ -255,9 +257,10 @@ class Resource
    * @param  string|array  $resourceName Either a single resource name, an array of resource names or resource info, or an array of resource info
    * @param  boolean $minified Whether we should minify the code or not
    * @param  array|boolean $cssCrushOptions Options to pass onto cssCrush
+   * @param  boolean $includeHost Whether to include the host in the returned url
    * @return string
    */
-  public static function renderCSS($resourceName, $minified = true, $cssCrushOptions = true)
+  public static function renderCSS($resourceName, $minified = true, $cssCrushOptions = true, $includeHost = true)
   {
     if (is_array($resourceName) && !array_key_exists('path', $resourceName)) {
       // working with multiple css resources
@@ -279,9 +282,9 @@ class Resource
           $crushedResources[] = self::crushify($resource, $minified, $cssCrushOptions, false);
         }
       }
-      return self::renderResources($crushedResources);
+      return self::renderResources($crushedResources, $includeHost);
     }
-    return Resource::renderResource($resourceName, $minified, $cssCrushOptions);
+    return Resource::renderResource($resourceName, $minified, $cssCrushOptions, $includeHost);
   }
 
 
@@ -289,11 +292,16 @@ class Resource
    * Renders out a bunch of resources using the minifier and adds the versions of all the resources up so that if you increment one version, the concatenated file will be incremented accordingly
    *
    * @param  array  $resourceNames Array of resource names, or an array of resource info arrays
+   * @param  boolean $includeHost Whether to include the host in the returned url
    * @return string
    */
-  private static function renderResources(array $resourceNames)
+  private static function renderResources(array $resourceNames, $includeHost = true)
   {
-    $return  = self::determineHost() . Resource::MIN_PREFIX;
+    if ($includeHost) {
+      $return  = self::determineHost() . Resource::MIN_PREFIX;
+    } else {
+      $return = Resource::MIN_PREFIX;
+    }
     $version = 0;
     $lastKey = count($resourceNames) - 1;
 

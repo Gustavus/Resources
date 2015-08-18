@@ -49,17 +49,17 @@ class ResourcesTest extends \Gustavus\Test\Test
 
   /**
    * @test
-   * @dataProvider renderResourcesData
+   * @dataProvider renderResourceData
    */
-  public function renderResources($expected, $resources, $minified = true)
+  public function renderResource($expected, $resources, $minified = true, $includeHost = true)
   {
-    $this->assertSame($expected, Resources\Resource::renderResource($resources, $minified));
+    $this->assertSame($expected, Resources\Resource::renderResource($resources, $minified, false, $includeHost));
   }
 
   /**
-   * data provider for renderResources
+   * data provider for renderResource
    */
-  public function renderResourcesData()
+  public function renderResourceData()
   {
     return [
       ['https://static-beta2.gac.edu/min/f=/js/imageFill.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION - 0), ['imageFill']],
@@ -69,6 +69,8 @@ class ResourcesTest extends \Gustavus\Test\Test
       ['https://static-beta2.gac.edu/min/f=/js/formBuilder.js?v=1', ['path' => '/js/formBuilder.js']],
       ['https://static-beta2.gac.edu/min/f=/js/arst.js,/js/formBuilder.js?v=2', [['path' => '/js/arst.js', 'version' => 2], ['path' => '/js/formBuilder.js', 'version' => 1]]],
       ['https://static-beta2.gac.edu/min/f=/js/arst.js,/js/formBuilder.js?v=2', [['path' => '/js/arst.js', 'version' => 2], ['path' => '/js/formBuilder.js']]],
+      ['/min/f=/js/arst.js?v=2', ['path' => '/js/arst.js', 'version' => 2], true, false],
+      ['/min/f=/js/arst.js,/js/formBuilder.js?v=2', [['path' => '/js/arst.js', 'version' => 2], ['path' => '/js/formBuilder.js']], true, false],
 
     ];
   }
@@ -112,6 +114,19 @@ class ResourcesTest extends \Gustavus\Test\Test
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderCSS($resource, true, $options);
     $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.crush.css') !== false);
+    $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
+    $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
+  }
+
+  /**
+   * @test
+   */
+  public function renderCSSNoHost()
+  {
+    $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
+    $options['doc_root'] = '/cis/www/';
+    $actual = Resources\Resource::renderCSS($resource, true, $options, false);
+    $this->assertSame('/template/js/plugins/helpbox/helpbox.crush.css?v=1', $actual);
     $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
   }
