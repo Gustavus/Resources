@@ -142,14 +142,14 @@ class Resource
         // single resource with info
         $resource = $resourceName;
       } else {
-        return Resource::renderResources($resourceName, false, $includeHost);
+        return Resource::renderResources($resourceName, $cssCrush, $includeHost);
       }
     } else {
       $resource = Resource::getResourceInfo($resourceName);
 
       if (is_array($resource) && !array_key_exists('path', $resource)) {
         // we have multiple resources in this default config
-        return Resource::renderResources($resource, false, $includeHost);
+        return Resource::renderResources($resource, $cssCrush, $includeHost);
       }
     }
 
