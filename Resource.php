@@ -142,14 +142,14 @@ class Resource
         // single resource with info
         $resource = $resourceName;
       } else {
-        return Resource::renderResources($resourceName, $includeHost);
+        return Resource::renderResources($resourceName, false, $includeHost);
       }
     } else {
       $resource = Resource::getResourceInfo($resourceName);
 
       if (is_array($resource) && !array_key_exists('path', $resource)) {
         // we have multiple resources in this default config
-        return Resource::renderResources($resource, $includeHost);
+        return Resource::renderResources($resource, false, $includeHost);
       }
     }
 
@@ -163,8 +163,9 @@ class Resource
       $resource['version'] = 1;
     }
 
-    if ($cssCrush !== false && substr($resource['path'], -4) === '.css') {
+    if (($cssCrush !== false || (isset($resource['crush']) && $resource['crush'])) && substr($resource['path'], -4) === '.css') {
       // css file. Let's pass this through css crush and return the crushed file
+      unset($resource['crush']);
       return self::crushify($resource, $minified, $cssCrush, true, $includeHost);
     }
 
@@ -274,15 +275,25 @@ class Resource
 
           foreach ($defaultResources as $defaultResource) {
             if (isset($defaultResource['crush']) && $defaultResource['crush']) {
+              unset($defaultResource['crush']);
               $defaultResource = self::crushify($defaultResource, $minified, $cssCrushOptions, false);
             }
             $crushedResources[] = $defaultResource;
           }
         } else {
-          $crushedResources[] = self::crushify($resource, $minified, $cssCrushOptions, false);
+          if ($cssCrushOptions !== false || (isset($resource['crush']) && $resource['crush'])) {
+            unset($resource['crush']);
+            $crushedResources[] = self::crushify($resource, $minified, $cssCrushOptions, false);
+          } else {
+            $crushedResources[] = $resource;
+          }
         }
       }
-      return self::renderResources($crushedResources, $includeHost);
+      if (count($crushedResources) === 1) {
+        return self::renderResource(current($crushedResources), false, false, $includeHost);
+      } else {
+        return self::renderResources($crushedResources, false, $includeHost);
+      }
     }
     return Resource::renderResource($resourceName, $minified, $cssCrushOptions, $includeHost);
   }
@@ -292,10 +303,11 @@ class Resource
    * Renders out a bunch of resources using the minifier and adds the versions of all the resources up so that if you increment one version, the concatenated file will be incremented accordingly
    *
    * @param  array  $resourceNames Array of resource names, or an array of resource info arrays
+   * @param  boolean|array $cssCrush Whether we should pass this through cssCrush or not. Could be an array of options to pass to cssCrush.
    * @param  boolean $includeHost Whether to include the host in the returned url
    * @return string
    */
-  private static function renderResources(array $resourceNames, $includeHost = true)
+  private static function renderResources(array $resourceNames, $cssCrush = false, $includeHost = true)
   {
     if ($includeHost) {
       $return  = self::determineHost() . Resource::MIN_PREFIX;
@@ -330,6 +342,11 @@ class Resource
       if ($resource === false) {
         // resource not found. keep going
         continue;
+      }
+
+      if ($cssCrush !== false || ((isset($resource['crush']) && $resource['crush']) && substr($resource['path'], -4) === '.css')) {
+        unset($resource['crush']);
+        $resource = self::crushify($resource, true, $cssCrush, false, false);
       }
 
       if ($i === $lastKey) {

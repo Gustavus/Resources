@@ -113,9 +113,58 @@ class ResourcesTest extends \Gustavus\Test\Test
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderCSS($resource, true, $options);
-    $this->assertTrue(strpos($actual, 'https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.crush.css') !== false);
-    $this->assertGreaterThanOrEqual(2, strpos($actual, 'crush'));
-    $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
+    $this->assertSame('https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.crush.css?v=1', $actual);
+  }
+
+  /**
+   * @test
+   */
+  public function renderCSSArray()
+  {
+    $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
+    $options['doc_root'] = '/cis/www/';
+    $actual = Resources\Resource::renderCSS([$resource], true, $options);
+    $this->assertSame('https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.crush.css?v=1', $actual);
+  }
+
+  /**
+   * @test
+   */
+  public function renderCSSArrayDontCrush()
+  {
+    $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
+    $actual = Resources\Resource::renderCSS([$resource], true, false);
+    $this->assertSame('https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.css?v=1', $actual);
+  }
+
+  /**
+   * @test
+   */
+  public function renderCSSArrayDontCrushOverride()
+  {
+    $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css', 'crush' => true];
+    $actual = Resources\Resource::renderCSS([$resource], true, false);
+    $this->assertSame('https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.crush.css?v=1', $actual);
+  }
+
+  /**
+   * @test
+   */
+  public function renderResourceCrush()
+  {
+    $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css', 'crush' => true];
+    $actual = Resources\Resource::renderResource([$resource], true);
+    $this->assertSame('https://static-beta2.gac.edu/min/f=/template/js/plugins/helpbox/helpbox.crush.css?v=1', $actual);
+  }
+
+  /**
+   * @test
+   */
+  public function renderResourceCrushDontCrush()
+  {
+    $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
+    $actual = Resources\Resource::renderResource([$resource], true);
+    $this->assertSame('https://static-beta2.gac.edu/min/f=/template/js/plugins/helpbox/helpbox.css?v=1', $actual);
   }
 
   /**
@@ -160,10 +209,10 @@ class ResourcesTest extends \Gustavus\Test\Test
           'path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css'
         ]
     ]);
-    $expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/qTip2/dist/jquery.qtip.min.css,/js/jquery/select2/select2.crush.css,/js/Gustavus/select2.custom.css,/template/js/plugins/helpbox/helpbox.crush.css';
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/qTip2/dist/jquery.qtip.min.css,/js/jquery/select2/select2.crush.css,/js/Gustavus/select2.custom.css,/template/js/plugins/helpbox/helpbox.crush.css?v=1';
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderCSS(['qtip-css', 'select2', ['path' => '/template/js/plugins/helpbox/helpbox.css']], true, $options);
-    $this->assertContains($expected, $actual);
+    $this->assertSame($expected, $actual);
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
     $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
   }
@@ -184,10 +233,10 @@ class ResourcesTest extends \Gustavus\Test\Test
           'path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css'
         ]
     ]);
-    $expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/qTip2/dist/jquery.qtip.min.css,/js/jquery/select2/select2.css,/js/Gustavus/select2.custom.css,/template/js/plugins/helpbox/helpbox.css';
+    $expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/qTip2/dist/jquery.qtip.min.css,/js/jquery/select2/select2.crush.css,/js/Gustavus/select2.custom.css,/template/js/plugins/helpbox/helpbox.css?v=1';
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderResource(['qtip-css', 'select2', ['path' => '/template/js/plugins/helpbox/helpbox.css']]);
-    $this->assertContains($expected, $actual);
+    $this->assertSame($expected, $actual);
     $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
     $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
   }
