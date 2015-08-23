@@ -98,6 +98,12 @@ class Config
   const PLAYER_VERSION = 2;
 
   /**
+   * FooTable Version
+   * @var integer
+   */
+  const FOOTABLE_VERSION = 1;
+
+  /**
    * Version of our custom select2 css overrides
    */
   const SELECT2_CUSTOM_CSS_VERSION = 1;
