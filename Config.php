@@ -136,6 +136,7 @@ class Config
     'web-background'     => 'EFEFEF',
     'web-light-gray'     => 'CFD4D8',
     'web-light-gray-90'  => 'D1D7DA',
+    'web-light-gray-75'  => 'D7DBDE',
     'web-light-gray-alt' => '959DA0',
     'web-medium-gray'    => '373E42',
     'web-medium-gray-90' => '4A4F53',
@@ -145,11 +146,13 @@ class Config
     'brand-blue-75'      => '3C7CAC',
     'brand-blue-90'      => '17659E',
     'brand-gold-90'      => 'FDD217',
+    'brand-gold-70'      => 'FFDE50',
     'brand-red-50'       => 'D79084',
     'brand-red-75'       => 'CB614F',
     'brand-red-90'       => 'C4442F',
     //'web-blue'         => '1C5681'
     'auxbox-blue'        => '164C78',
+    'web-highlight'      => 'f8f8f8',
 
 
     // Gustavue Pallete
@@ -166,6 +169,7 @@ class Config
     'brand-pale-blue'         => 'C1D4E3',
     'brand-warm-gray'         => 'EDE7DD',
     'brand-shadow-gray'       => 'DDDDDD',
+    'brand-dark-shadow-gray'  => 'CCCCCC',
 
     // @todo search for uses of these
     // 'better-pale-yellow'      => 'FFFEFA',
