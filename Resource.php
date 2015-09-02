@@ -90,14 +90,14 @@ class Resource
       'path' => '/js/Gustavus/Player.js', 'version' => Config::PLAYER_VERSION
     ],
     'footable'        => [
-      ['path' => '/js/jquery/FooTable/js/footable.js', 'version' => Config::FOOTABLE_VERSION],
-      ['path' => '/js/jquery/FooTable/js/footable.sort.js', 'version' => Config::FOOTABLE_VERSION],
-      ['path' => '/js/jquery/FooTable/dist/footable.filter.min.js', 'version' => Config::FOOTABLE_VERSION],
-      ['path' => '/js/jquery/FooTable/js/footable.striping.js', 'version' => Config::FOOTABLE_VERSION],
-      ['path' => '/js/jquery/FooTable/gac/footable.trimmer.js', 'version' => Config::FOOTABLE_VERSION],
+      ['path' => '/js/jquery/FooTable/js/footable.js', 'version' => Config::FOOTABLE_JS_VERSION],
+      ['path' => '/js/jquery/FooTable/js/footable.sort.js', 'version' => Config::FOOTABLE_JS_VERSION],
+      ['path' => '/js/jquery/FooTable/dist/footable.filter.min.js', 'version' => Config::FOOTABLE_JS_VERSION],
+      ['path' => '/js/jquery/FooTable/js/footable.striping.js', 'version' => Config::FOOTABLE_JS_VERSION],
+      ['path' => '/js/jquery/FooTable/gac/footable.trimmer.js', 'version' => Config::FOOTABLE_JS_VERSION],
     ],
     'footable-css'    => [
-      'path' => '/js/jquery/FooTable/gac/footable.gac.css', 'version' => Config::FOOTABLE_VERSION
+      'path' => '/js/jquery/FooTable/gac/footable.gac.css', 'version' => Config::FOOTABLE_CSS_VERSION
     ],
   ];
 
