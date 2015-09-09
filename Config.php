@@ -107,7 +107,7 @@ class Config
    * FooTable JS Version
    * @var integer
    */
-  const FOOTABLE_JS_VERSION = 2;
+  const FOOTABLE_JS_VERSION = 3;
 
   /**
    * Version of our custom select2 css overrides
