@@ -5,6 +5,8 @@
  */
 namespace Gustavus\Resources;
 
+use Gustavus\Utility\String;
+
 /**
  * Config to keep track of resource versions
  *
@@ -215,3 +217,5 @@ class Config
     'base-line-height' => '1.5em',
   ];
 }
+
+Config::$globalCrushVariables['host'] = rtrim((new String('/'))->buildURL(false, true)->getValue(), '/');
