@@ -73,7 +73,7 @@ class Config
    * url utility version
    * @var integer
    */
-  const URL_UTILITY_VERSION = 6;
+  const URL_UTILITY_VERSION = 7;
 
   /**
    * Gustavus.jQuery.Dropdown version
@@ -97,7 +97,7 @@ class Config
    * Gustavus Player version
    * @var integer
    */
-  const PLAYER_VERSION = 2;
+  const PLAYER_VERSION = 3;
 
   /**
    * FooTable CSS Version
@@ -109,7 +109,7 @@ class Config
    * FooTable JS Version
    * @var integer
    */
-  const FOOTABLE_JS_VERSION = 3;
+  const FOOTABLE_JS_VERSION = 4;
 
   /**
    * Version of our custom select2 css overrides
