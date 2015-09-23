@@ -97,7 +97,7 @@ class Config
    * Gustavus Player version
    * @var integer
    */
-  const PLAYER_VERSION = 3;
+  const PLAYER_VERSION = 4;
 
   /**
    * FooTable CSS Version
