@@ -11,30 +11,16 @@ use \Gustavus\Resources;
  * @package Resources
  * @subpackage Tests
  */
-class ResourcesTest extends \Gustavus\Test\Test
+class ResourcesTest extends TestBase
 {
-  /**
-   * Token for overriding methods
-   * @var mixed
-   */
-  private $overrideToken;
-
   /**
    * sets up the object for each test
    * @return void
    */
   public function setUp()
   {
-    $this->overrideToken = override_method('\Gustavus\Resources\Resource', 'allowMinification', function() {return true;});
-  }
-
-  /**
-   * destructs the object after each test
-   * @return void
-   */
-  public function tearDown()
-  {
-    unset($this->overrideToken);
+    $this->overrideToken['allowMinification'] = override_method('\Gustavus\Resources\Resource', 'allowMinification', function() {return true;});
+    parent::setUp();
   }
 
   /**
