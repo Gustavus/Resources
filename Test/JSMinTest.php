@@ -85,8 +85,8 @@ class JSMinTest extends TestBase
   }
 
   /**
-  * @test
-  */
+   * @test
+   */
   public function buildMinifyOptionsHash()
   {
     $options = ['test' => 'arst', 'arst' => 'test'];
@@ -96,8 +96,8 @@ class JSMinTest extends TestBase
   }
 
   /**
-  * @test
-  */
+   * @test
+   */
   public function removeDocRootFromPath()
   {
     $_SERVER['DOCUMENT_ROOT'] = '/cis/www';
@@ -106,8 +106,8 @@ class JSMinTest extends TestBase
   }
 
   /**
-  * @test
-  */
+   * @test
+   */
   public function removeDocRootFromPathDocRootTrailingSlash()
   {
     $_SERVER['DOCUMENT_ROOT'] = '/cis/www/';
@@ -116,8 +116,8 @@ class JSMinTest extends TestBase
   }
 
   /**
-  * @test
-  */
+   * @test
+   */
   public function addDocRootToPath()
   {
     unset($this->overrideToken);
@@ -127,8 +127,8 @@ class JSMinTest extends TestBase
   }
 
   /**
-  * @test
-  */
+   * @test
+   */
   public function addDocRootToPathWithTrailingSlashInDocRoot()
   {
     unset($this->overrideToken);
@@ -152,8 +152,8 @@ class JSMinTest extends TestBase
   }
 
   /**
-  * @test
-  */
+   * @test
+   */
   public function minifyFileAlreadyMinfied()
   {
     $result = JSMin::minifyFile(JSMin::$minifiedFolder . 'arst.js');
@@ -161,8 +161,8 @@ class JSMinTest extends TestBase
   }
 
   /**
-  * @test
-  */
+   * @test
+   */
   public function minifyFile()
   {
     @unlink(self::$minifyInfoPath);
@@ -171,8 +171,7 @@ class JSMinTest extends TestBase
 
     $this->assertNotSame(self::$testFilePath, $result);
     $this->assertSame(self::$testMinifiedPath, $result);
-    $this->assertNotSame(file_get_contents(self::$testMinifiedPath), file_get_contents(self::$testFilePath));
-    $this->assertTrue(file_exists(self::$minifyInfoPath));
+    $this->assertTrue(file_exists($this->get('\Gustavus\Resources\JSMin', 'stagingDir') . basename(self::$testMinifiedPath)));
   }
 
   /**
@@ -188,9 +187,7 @@ class JSMinTest extends TestBase
 
     $this->assertNotSame(self::$testFilePath, $result);
     $this->assertSame(self::$testMinifiedPath, $result);
-    $this->assertNotSame(file_get_contents(self::$testMinifiedPath), file_get_contents(self::$testFilePath));
-    $this->assertTrue(file_exists(self::$minifyInfoPath));
-    $this->assertSame($fileMTime, filemtime(self::$minifyInfoPath));
+    $this->assertTrue(file_exists($this->get('\Gustavus\Resources\JSMin', 'stagingDir') . basename(self::$testMinifiedPath)));
   }
 
   /**
@@ -203,24 +200,12 @@ class JSMinTest extends TestBase
     $this->assertTrue(file_exists(self::$minifyInfoPath));
     $fileMTime = filemtime(self::$minifyInfoPath);
 
+    copy(self::$testFilePath, self::$testMinifiedPath);
     $result = JSMin::minifyFile(self::$testFilePath, ['compilation_level' => 'WHITESPACE_ONLY']);
     $this->assertTrue($this->errorTriggered);
     $this->assertContains('already been minified with different options', $this->errorString);
 
     $this->assertSame(self::$testFilePath, $result);
     restore_error_handler();
-  }
-
-  /**
-  * @test
-  */
-  public function minifyFileAdvancedRemovedEverything()
-  {
-    @unlink(self::$minifyInfoPath);
-    @unlink(self::$testMinifiedPath);
-
-    $result = JSMin::minifyFile(self::$testFilePath, ['compilation_level' => 'ADVANCED_OPTIMIZATIONS']);
-
-    $this->assertSame(self::$testFilePath, $result);
   }
 }

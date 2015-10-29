@@ -55,6 +55,7 @@ class TestBase extends \Gustavus\Test\Test
   {
     JSMin::$minifiedFolder = self::$minifiedFolderBackup;
     self::removeFiles('/cis/lib/Gustavus/Resources/Test/files/min/');
+    self::removeFiles('/cis/lib/Gustavus/Resources/Test/files/staging/');
   }
 
   /**
@@ -63,6 +64,10 @@ class TestBase extends \Gustavus\Test\Test
    */
   public function setUp()
   {
+    $this->set('\Gustavus\Resources\JSMin', 'stagingDir', '/cis/lib/Gustavus/Resources/Test/files/staging/');
+    if (!file_exists('/cis/lib/Gustavus/Resources/Test/files/staging/')) {
+      mkdir('/cis/lib/Gustavus/Resources/Test/files/staging/');
+    }
     $this->overrideToken['addDocRootToPath'] = override_method('\Gustavus\Resources\JSMin', 'addDocRootToPath', function($filePath) {return $filePath;});
   }
 

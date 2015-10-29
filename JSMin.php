@@ -16,15 +16,25 @@ use Gustavus\Utility\CURLRequest;
 class JSMin
 {
   /**
+   * Directory where the file watcher is running so we can execute our compiler.jar file
+   */
+  private static $stagingDir = '/cis/www-etc/lib/Gustavus/Resources/jsStaging/';
+
+  /**
    * Location for all of our minified files
    */
-  public static $minifiedFolder = '/cis/www/js/min/';
+  public static $minifiedFolder = '/js/min/';
+
+  /**
+   * Location for all of our minified files
+   */
+  public static $minifiedWebFolder = '/js/min/';
 
   /**
    * File to store our minify information in.
    *   This file contains an json_encoded associative array with keys of the basename and values of the modified time of the file when we created our minified file
    */
-  private static $minifyInfoFile = '.gacmin';
+  public static $minifyInfoFile = '.gacmin';
 
   /**
    * Request parameters to pass to Google's closure compiler
@@ -32,11 +42,8 @@ class JSMin
    * @var array
    */
   private static $minifyOptions = [
-    'output_format'       => 'json',
-    'language'            => 'ECMASCRIPT5',
-    'compilation_level'   => 'SIMPLE_OPTIMIZATIONS',
-    //'compilation_level' => 'WHITESPACE_ONLY',
-    'output_info'         => 'compiled_code',
+    'language_in'         => 'ECMASCRIPT5',
+    'compilation_level'   => 'SIMPLE', // WHITESPACE_ONLY, SIMPLE, ADVANCED
   ];
 
   /**
@@ -45,48 +52,10 @@ class JSMin
    * @var array
    */
   private static $customizableOptions = [
-    'language',
+    'language_in',
     'language_out',
     'compilation_level',
   ];
-
-  /**
-   * Actually performs the minification for the specified file
-   *   Makes an API request to google's closure compiler.
-   *
-   * @param  string $filePath Path to the file to minify
-   * @param  array  $minifyOptions Options to pass to Google's minifier
-   * @return string|boolean String of the minified file. False if it failed to minify.
-   */
-  private static function performMinification($filePath, Array $minifyOptions)
-  {
-    $curl = new CURLRequest();
-
-    $minifyOptions['js_code'] = file_get_contents($filePath);
-
-    $curl->setOption(CURLOPT_POST, 1);
-    $curl->setOption(CURLOPT_POSTFIELDS, http_build_query($minifyOptions));
-    $curl->setOption(CURLOPT_RETURNTRANSFER, true);
-    $curl->setOption(CURLOPT_HTTPHEADER, ['Content-type: application/x-www-form-urlencoded']);
-
-    $result = $curl->execute('https://closure-compiler.appspot.com/compile');
-
-    if ($curl->getLastErrorNumber() > 0) {
-      trigger_error(curl_strerror($curl->getLastErrorNumber()), E_USER_NOTICE);
-      $curl->close();
-      return false;
-    }
-    $curl->close();
-
-    $result = json_decode($result, true);
-    if (!isset($result['compiledCode'])) {
-      //https://developers.google.com/closure/compiler/docs/api-ref?hl=en#errors
-      trigger_error('No compiled code was found in the result. Result: ' . print_r($result, true), E_USER_NOTICE);
-      return false;
-    }
-
-    return $result['compiledCode'];
-  }
 
   /**
    * Minifies a file and saves it with our minified extension.
@@ -97,7 +66,7 @@ class JSMin
    */
   public static function minifyFile($filePath, Array $options = [])
   {
-    if (strpos($filePath, self::removeDocRootFromPath(self::$minifiedFolder)) !== false) {
+    if (strpos($filePath, self::$minifiedFolder) !== false) {
       // this file appears to already be minified
       return $filePath;
     }
@@ -118,10 +87,10 @@ class JSMin
     $baseDir  = dirname($filePath) . '/';
     $baseName = basename($filePath);
     $minifiedBaseName = sprintf('%s-%s', md5($baseDir), $baseName);
-    $minifiedFilePath = self::$minifiedFolder . $minifiedBaseName;
+    $minifiedFilePath = self::addDocRootToPath(self::$minifiedFolder) . $minifiedBaseName;
 
     // path to our info file
-    $minifyInfoPath = self::$minifiedFolder . self::$minifyInfoFile;
+    $minifyInfoPath = self::addDocRootToPath(self::$minifiedFolder) . self::$minifyInfoFile;
     // Note: We use an info file because just comparing timestamps might not be enough in some situations. ie. If we removed a minified file on Lisa, then copied a file from Bart, the copied file on Lisa could still have an mtime less than that of our new minified file.
 
     // build our options hash so we can determine if the file was minified with the same options
@@ -154,35 +123,45 @@ class JSMin
     $minifyInfo[$minifiedBaseName] = [
       'optionsHash' => $minifyOptionsHash,
       'mTime'       => $fileMTime,
+      'sourceFile'  => $filePath,
     ];
 
-    if ((file_exists($minifiedFilePath) && !is_writable($minifiedFilePath)) || !is_writable(self::$minifiedFolder)) {
-      // our file is not writable.
-      trigger_error(sprintf('The filepath: "%s" is not writable.', $minifiedFilePath), E_USER_NOTICE);
+    if (!self::stageFile($filePath, $minifiedFilePath, $minifyOptions)) {
       return self::removeDocRootFromPath($filePath);
     }
 
-    if ((file_exists($minifyInfoPath) && !is_writable($minifyInfoPath)) || !is_writable(self::$minifiedFolder)) {
+    if ((file_exists($minifyInfoPath) && !is_writable($minifyInfoPath)) || !is_writable(self::addDocRootToPath(self::$minifiedFolder))) {
       // our info file is not writable
       trigger_error(sprintf('Couldn\'t write to our minify info file: "%s"', $minifyInfoPath), E_USER_NOTICE);
       return self::removeDocRootFromPath($filePath);
     }
 
-    // create our minified file
-    $minifiedSource = self::performMinification($filePath, $minifyOptions);
-    if (empty($minifiedSource) || !$minifiedSource) {
-      return self::removeDocRootFromPath($filePath);
-    }
+    file_put_contents($minifyInfoPath, json_encode($minifyInfo));
+    return self::removeDocRootFromPath($minifiedFilePath);
+  }
 
-    // Save our files and return the new minified file's path
-    if (file_put_contents($minifiedFilePath, $minifiedSource)) {
-      file_put_contents($minifyInfoPath, json_encode($minifyInfo));
-      return self::removeDocRootFromPath($minifiedFilePath);
-    } else {
-      // This shouldn't happen, but just in case.
-      trigger_error(sprintf('There weren\'t any bytes written to the file: "%s". Something happenend.', $minifiedFilePath), E_USER_NOTICE);
-      return self::removeDocRootFromPath($filePath);
+  /**
+   * Saves a file with the compiler command to be executed in our watched directory
+   *
+   * @param  string $sourceFilePath     Source file to compile
+   * @param  string $destinationPath    Destination of the compiled file
+   * @param  Array  $compilationOptions Options to pass to the compiler
+   * @return void
+   */
+  private static function stageFile($sourceFilePath, $destinationPath, Array $compilationOptions)
+  {
+    if (!is_dir(self::$stagingDir)) {
+      mkdir(self::$stagingDir, 0777, true);
     }
+    $options = '';
+    foreach ($compilationOptions as $option => $value) {
+      $options .= sprintf(' --%s %s', $option, $value);
+    }
+    $cmd = sprintf('java -jar /cis/lib/Gustavus/Resources/closure-compiler/compiler.jar --js %s --js_output_file %s%s', $sourceFilePath, $destinationPath, $options);
+
+    file_put_contents(self::$stagingDir . basename($destinationPath), $cmd);
+
+    return true;
   }
 
   /**
