@@ -5,7 +5,8 @@
  */
 
 namespace Gustavus\Resources\Test;
-use \Gustavus\Resources;
+use \Gustavus\Resources,
+  \Gustavus\Resources\JSMin;
 
 /**
  * @package Resources
@@ -48,9 +49,9 @@ class ResourcesTest extends TestBase
   public function renderResourceData()
   {
     return [
-      ['https://static-beta2.gac.edu/min/f=/js/imageFill.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION - 0), ['imageFill']],
+      [sprintf('https://static-beta2.gac.edu/cis/lib/Gustavus/Resources/Test/files/min/%s-imageFill.js?v=%s', md5('/cis/www/js/'), (Resources\Config::IMAGE_FILL_JS_VERSION - 0)), ['imageFill']],
       ['https://static-beta2.gac.edu/js/imageFill.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION - 0), 'imageFill', false],
-      ['https://static-beta2.gac.edu/min/f=/js/imageFill.js,/js/Gustavus/TinyMCE.js?v=' . (Resources\Config::IMAGE_FILL_JS_VERSION + Resources\Config::TINYMCE_CONFIG_VERSION - 1), ['imagefill', 'tinyMCEConfig']],
+      [sprintf('https://static-beta2.gac.edu/min/f=/cis/lib/Gustavus/Resources/Test/files/min/%s-imageFill.js,/cis/lib/Gustavus/Resources/Test/files/min/%s-TinyMCE.js?v=%s', md5('/cis/www/js/'), md5('/cis/www/js/Gustavus/'), (Resources\Config::IMAGE_FILL_JS_VERSION + Resources\Config::TINYMCE_CONFIG_VERSION - 1)), ['imagefill', 'tinyMCEConfig']],
       ['https://static-beta2.gac.edu/min/f=/js/formBuilder.js?v=1', ['path' => '/js/formBuilder.js', 'version' => 1]],
       ['https://static-beta2.gac.edu/min/f=/js/formBuilder.js?v=1', ['path' => '/js/formBuilder.js']],
       ['https://static-beta2.gac.edu/min/f=/js/arst.js,/js/formBuilder.js?v=2', [['path' => '/js/arst.js', 'version' => 2], ['path' => '/js/formBuilder.js', 'version' => 1]]],
@@ -140,7 +141,7 @@ class ResourcesTest extends TestBase
   {
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css', 'crush' => true];
     $actual = Resources\Resource::renderResource([$resource], true);
-    $this->assertSame('https://static-beta2.gac.edu/min/f=/template/js/plugins/helpbox/helpbox.crush.css?v=1', $actual);
+    $this->assertSame('https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.crush.css?v=1', $actual);
   }
 
   /**

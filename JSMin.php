@@ -84,6 +84,9 @@ class JSMin
     }
     // add our doc root onto the file path
     $filePath = self::addDocRootToPath($filePath);
+    if (!file_exists($filePath)) {
+      return self::removeDocRootFromPath($filePath);
+    }
     // get our default options
     $minifyOptions = self::$minifyOptions;
 

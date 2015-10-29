@@ -41,9 +41,6 @@ class TestBase extends \Gustavus\Test\Test
   {
     self::$minifiedFolderBackup = JSMin::$minifiedFolder;
     JSMin::$minifiedFolder = '/cis/lib/Gustavus/Resources/Test/files/min/';
-    if (!file_exists(JSMin::$minifiedFolder)) {
-      mkdir(JSMin::$minifiedFolder);
-    }
   }
 
   /**
@@ -69,7 +66,17 @@ class TestBase extends \Gustavus\Test\Test
     if (!file_exists('/cis/lib/Gustavus/Resources/Test/files/staging/')) {
       mkdir('/cis/lib/Gustavus/Resources/Test/files/staging/');
     }
-    $this->overrideToken['addDocRootToPath'] = override_method('\Gustavus\Resources\JSMin', 'addDocRootToPath', function($filePath) {return $filePath;});
+    if (!file_exists(JSMin::$minifiedFolder)) {
+      mkdir(JSMin::$minifiedFolder);
+    }
+    $addDocRootToken = override_method('\Gustavus\Resources\JSMin', 'addDocRootToPath', function($filePath) use(&$addDocRootToken) {
+      if (strpos($filePath, '/cis/lib') !== false) {
+        return $filePath;
+      }
+      return call_overridden_func($addDocRootToken, null, $filePath);
+    });
+
+    $this->overrideToken['addDocRootToPath'] = $addDocRootToken;
   }
 
   /**

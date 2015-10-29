@@ -4,7 +4,8 @@
  * @author  Billy Visto
  */
 namespace Gustavus\Resources;
-use Gustavus\Resources\Config;
+use Gustavus\Resources\Config,
+  Gustavus\Resources\JSMin;
 
 /**
  * Class to render out resources that we need.
@@ -19,6 +20,21 @@ class Resource
    */
   const MIN_PREFIX = '/min/f=';
 
+  /**
+   * Extension to use for crushed css files
+   */
+  const CRUSH_EXTENSION = '.crush.css';
+
+  /**
+   * String to append to versions to signify a temporary version
+   */
+  const TEMP_VERSION = 'tmp';
+
+  /**
+   * Default configurations for resources
+   *
+   * @var array
+   */
   private static $defaultResources = [
     'imagefill'       => [
       'path' => '/js/imageFill.js', 'version' => Config::IMAGE_FILL_JS_VERSION
@@ -118,6 +134,13 @@ class Resource
 
   /**
    * Renders out the link for the resource requested. If the resourse wasn't found, it will return an empty string
+   *   Resource options:
+   *   <ul>
+   *     <li>path: Path to the resource</li>
+   *     <li>version: Version of the resource</li>
+   *     <li>crush: Whether to crush a css resource or not</li>
+   *     <li>jsMinOptions: Options to pass to our js minifier</li>
+   *   </ul>
    *
    * @param  string|array  $resourceName Either a single resource name, an array of resource names or resource info, or an array of resource info
    * @param  boolean $minified Whether we should minify the code or not
@@ -127,19 +150,23 @@ class Resource
    */
   public static function renderResource($resourceName, $minified = true, $cssCrush = false, $includeHost = true)
   {
+    if (is_array($resourceName) && !array_key_exists('path', $resourceName) && count($resourceName) === 1) {
+      // we have an array of arrays, but it only contains one nested array.
+      $resourceName = current($resourceName);
+    }
     if (is_array($resourceName)) {
       if (array_key_exists('path', $resourceName)) {
         // single resource with info
         $resource = $resourceName;
       } else {
-        return Resource::renderResources($resourceName, $cssCrush, $includeHost);
+        return self::renderResources($resourceName, $cssCrush, $includeHost);
       }
     } else {
-      $resource = Resource::getResourceInfo($resourceName);
+      $resource = self::getResourceInfo($resourceName);
 
       if (is_array($resource) && !array_key_exists('path', $resource)) {
         // we have multiple resources in this default config
-        return Resource::renderResources($resource, $cssCrush, $includeHost);
+        return self::renderResources($resource, $cssCrush, $includeHost);
       }
     }
 
@@ -159,10 +186,24 @@ class Resource
       return self::crushify($resource, $minified, $cssCrush, true, $includeHost);
     }
 
-    if ($minified || strpos($resource['path'], ',') !== false) {
+    if ($minified && self::allowMinification() && substr($resource['path'], -3) === '.js') {
+      $opts = isset($resource['jsMinOptions']) ? $resource['jsMinOptions']: [];
+      $minResult = JSMin::minifyFile($resource['path'], $opts);
+      if (is_array($minResult)) {
+        $resource['path'] = $minResult['minPath'];
+        if (isset($minResult['temporary']) && $minResult['temporary']) {
+          $resource['version'] = $resource['version'] . self::TEMP_VERSION;
+        }
+      } else {
+        $resource['path'] = $minResult;
+      }
+    }
+
+    if (strpos($resource['path'], JSMin::$minifiedFolder) === false && $minified) {
+      // not an already minified resource
       return sprintf('%s%s%s?v=%s%s',
           ($includeHost ? self::determineHost() : ''),
-          Resource::MIN_PREFIX,
+          self::MIN_PREFIX,
           $resource['path'],
           $resource['version'],
           (!self::allowMinification() ? '&m=false' : '')
@@ -231,12 +272,12 @@ class Resource
     if ($urlify) {
       return sprintf('%s%s?v=%s',
           ($includeHost ? self::determineHost() : ''),
-          str_replace('.css', '.crush.css', $resource['path']),
+          str_replace('.css', self::CRUSH_EXTENSION, $resource['path']),
           $resource['version']
       );
     } else {
       // we don't want this resource urlified.
-      $resource['path'] = str_replace('.css', '.crush.css', $resource['path']);
+      $resource['path'] = str_replace('.css', self::CRUSH_EXTENSION, $resource['path']);
       return $resource;
     }
   }
@@ -285,7 +326,7 @@ class Resource
         return self::renderResources($crushedResources, false, $includeHost);
       }
     }
-    return Resource::renderResource($resourceName, $minified, $cssCrushOptions, $includeHost);
+    return self::renderResource($resourceName, $minified, $cssCrushOptions, $includeHost);
   }
 
 
@@ -300,11 +341,12 @@ class Resource
   private static function renderResources(array $resourceNames, $cssCrush = false, $includeHost = true)
   {
     if ($includeHost) {
-      $return  = self::determineHost() . Resource::MIN_PREFIX;
+      $return  = self::determineHost() . self::MIN_PREFIX;
     } else {
-      $return = Resource::MIN_PREFIX;
+      $return = self::MIN_PREFIX;
     }
     $version = 0;
+    $temporaryVersion = false;
     $lastKey = count($resourceNames) - 1;
 
     for ($i = 0; $i <= $lastKey; ++$i) {
@@ -314,7 +356,7 @@ class Resource
         $resource = $resourceName;
       } else {
         // try to find the resource internally
-        $resource = Resource::getResourceInfo($resourceName);
+        $resource = self::getResourceInfo($resourceName);
         if (is_array($resource) && !array_key_exists('path', $resource)) {
           // we got multiple resources for this resourceName
           if (count($resource) === 1) {
@@ -339,6 +381,19 @@ class Resource
         $resource = self::crushify($resource, true, $cssCrush, false, false);
       }
 
+      if (self::allowMinification() &&substr($resource['path'], -3) === '.js') {
+        $opts = isset($resource['jsMinOptions']) ? $resource['jsMinOptions']: [];
+        $minResult = JSMin::minifyFile($resource['path'], $opts);
+        if (is_array($minResult)) {
+          $resource['path'] = $minResult['minPath'];
+          if (isset($minResult['temporary']) && $minResult['temporary']) {
+            $temporaryVersion = true;
+          }
+        } else {
+          $resource['path'] = $minResult;
+        }
+      }
+
       if ($i === $lastKey) {
         $return .= $resource['path'];
       } else {
@@ -355,6 +410,9 @@ class Resource
     // If one file increments to version 2, we want it to be version 2.
     // If two files increment to verison 2, it will be version 3.
     $return .= '?v=' . ($version - $lastKey);
+    if ($temporaryVersion) {
+      $return .= self::TEMP_VERSION;
+    }
     if (!self::allowMinification()) {
       $return .= '&m=false';
     }
