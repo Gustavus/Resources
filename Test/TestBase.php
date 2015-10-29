@@ -65,6 +65,7 @@ class TestBase extends \Gustavus\Test\Test
   public function setUp()
   {
     $this->set('\Gustavus\Resources\JSMin', 'stagingDir', '/cis/lib/Gustavus/Resources/Test/files/staging/');
+    $this->set('\Gustavus\Resources\JSMin', 'saveTemporaryFile', false);
     if (!file_exists('/cis/lib/Gustavus/Resources/Test/files/staging/')) {
       mkdir('/cis/lib/Gustavus/Resources/Test/files/staging/');
     }

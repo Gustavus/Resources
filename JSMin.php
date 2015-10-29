@@ -16,9 +16,21 @@ use Gustavus\Utility\CURLRequest;
 class JSMin
 {
   /**
+   * Extension to put on our temporary file flag
+   */
+  const TEMPORARY_FLAG_EXT = '.tmpFlag';
+
+  /**
    * Directory where the file watcher is running so we can execute our compiler.jar file
    */
   private static $stagingDir = '/cis/www-etc/lib/Gustavus/Resources/jsStaging/';
+
+  /**
+   * Flag to specify if we should save a temporary file or not
+   *
+   * @var boolean
+   */
+  private static $saveTemporaryFile = true;
 
   /**
    * Location for all of our minified files
@@ -62,7 +74,7 @@ class JSMin
    *
    * @param  string $filePath Path to the file to minify
    * @param  array  $options  Additional options to use when minifying the file
-   * @return string Minified file path
+   * @return string|array Minified file path or array with results
    */
   public static function minifyFile($filePath, Array $options = [])
   {
@@ -111,6 +123,13 @@ class JSMin
         }
         if ($fileInfo['mTime'] === $fileMTime) {
           // the file we want to minify hasn't been modified since we last minified it
+          if (file_exists($minifiedFilePath . self::TEMPORARY_FLAG_EXT)) {
+            // our temporary flag exists
+            return [
+              'minPath'   => self::removeDocRootFromPath($minifiedFilePath),
+              'temporary' => true,
+            ];
+          }
           return self::removeDocRootFromPath($minifiedFilePath);
         }
       }
@@ -126,6 +145,28 @@ class JSMin
       'sourceFile'  => $filePath,
     ];
 
+    if (self::$saveTemporaryFile) {
+      // actually put a temporary file there to have something in place while waiting for the stagedFile to be ran.
+      $_GET['f'] = self::removeDocRootFromPath($filePath);
+      $min_serveOptions['quiet'] = true;
+      $min_serveOptions['encodeOutput'] = false;
+      $minifyResult = include '/cis/www/min/index.php';
+      $temporaryFile = $minifyResult['content'];
+
+      if ((file_exists($minifiedFilePath) && !is_writable($minifiedFilePath)) || !is_writable(self::addDocRootToPath(self::$minifiedFolder))) {
+        // we can't write to our minified file
+        trigger_error(sprintf('Couldn\'t write to the file: "%s"', $minifiedFilePath), E_USER_NOTICE);
+        return self::removeDocRootFromPath($filePath);
+      }
+      if ((file_exists($minifiedFilePath . self::TEMPORARY_FLAG_EXT) && !is_writable($minifiedFilePath . self::TEMPORARY_FLAG_EXT)) || !is_writable(self::addDocRootToPath(self::$minifiedFolder))) {
+        // we can't save our temporary flag
+        trigger_error(sprintf('Couldn\'t save our temporary flag file: "%s"', $minifiedFilePath . self::TEMPORARY_FLAG_EXT), E_USER_NOTICE);
+        return self::removeDocRootFromPath($filePath);
+      }
+      file_put_contents($minifiedFilePath, $temporaryFile);
+      file_put_contents($minifiedFilePath . self::TEMPORARY_FLAG_EXT, 'temporary flag');
+    }
+
     if (!self::stageFile($filePath, $minifiedFilePath, $minifyOptions)) {
       return self::removeDocRootFromPath($filePath);
     }
@@ -137,6 +178,12 @@ class JSMin
     }
 
     file_put_contents($minifyInfoPath, json_encode($minifyInfo));
+    if (self::$saveTemporaryFile) {
+      return [
+        'minPath'   => self::removeDocRootFromPath($minifiedFilePath),
+        'temporary' => true,
+      ];
+    }
     return self::removeDocRootFromPath($minifiedFilePath);
   }
 

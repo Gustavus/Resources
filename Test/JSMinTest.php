@@ -208,4 +208,21 @@ class JSMinTest extends TestBase
     $this->assertSame(self::$testFilePath, $result);
     restore_error_handler();
   }
+
+  /**
+   * @test
+   */
+  public function minifyFileWithTemporaryFile()
+  {
+    @unlink(self::$minifyInfoPath);
+    @unlink(self::$testMinifiedPath);
+    $result = JSMin::minifyFile(self::$testFilePath);
+    $this->assertSame(self::$testMinifiedPath, $result);
+    file_put_contents(self::$testMinifiedPath, 'temp file contents');
+    file_put_contents(self::$testMinifiedPath . JSMin::TEMPORARY_FLAG_EXT, 'tmp');
+    $result = JSMin::minifyFile(self::$testFilePath);
+
+    $this->assertSame(['minPath' => self::$testMinifiedPath, 'temporary' => true], $result);
+    $this->assertTrue(file_exists($this->get('\Gustavus\Resources\JSMin', 'stagingDir') . basename(self::$testMinifiedPath)));
+  }
 }
