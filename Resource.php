@@ -5,7 +5,9 @@
  */
 namespace Gustavus\Resources;
 use Gustavus\Resources\Config,
-  Gustavus\Resources\JSMin;
+  Gustavus\Resources\JSMin,
+  Gustavus\Utility\Debug,
+  Gustavus\Extensibility\Filters;
 
 /**
  * Class to render out resources that we need.
@@ -186,8 +188,14 @@ class Resource
       return self::crushify($resource, $minified, $cssCrush, true, $includeHost);
     }
 
+    if (isset($_GET['debug'])) {
+      $debugArray = [];
+    }
     if ($minified && self::allowMinification() && substr($resource['path'], -3) === '.js') {
       $opts = isset($resource['jsMinOptions']) ? $resource['jsMinOptions']: [];
+      if (isset($_GET['debug'])) {
+        $origPath = $resource['path'];
+      }
       $minResult = JSMin::minifyFile($resource['path'], $opts);
       if (is_array($minResult)) {
         $resource['path'] = $minResult['minPath'];
@@ -197,6 +205,15 @@ class Resource
       } else {
         $resource['path'] = $minResult;
       }
+      if (isset($_GET['debug'])) {
+        $debugArray[$resource['path']] = $origPath;
+      }
+    }
+
+    if (isset($_GET['debug']) && !empty($debugArray)) {
+      Filters::add('body', function($content) use($debugArray) {
+        return sprintf('<pre>%s</pre>', Debug::dump($debugArray, true)) . $content;
+      });
     }
 
     if (strpos($resource['path'], JSMin::$minifiedFolder) === false && $minified) {
@@ -349,6 +366,10 @@ class Resource
     $temporaryVersion = false;
     $lastKey = count($resourceNames) - 1;
 
+    if (isset($_GET['debug'])) {
+      $debugArray = [];
+    }
+
     for ($i = 0; $i <= $lastKey; ++$i) {
       $resourceName = $resourceNames[$i];
       if (is_array($resourceName) && array_key_exists('path', $resourceName)) {
@@ -383,6 +404,9 @@ class Resource
 
       if (self::allowMinification() &&substr($resource['path'], -3) === '.js') {
         $opts = isset($resource['jsMinOptions']) ? $resource['jsMinOptions']: [];
+        if (isset($_GET['debug'])) {
+          $origPath = $resource['path'];
+        }
         $minResult = JSMin::minifyFile($resource['path'], $opts);
         if (is_array($minResult)) {
           $resource['path'] = $minResult['minPath'];
@@ -391,6 +415,9 @@ class Resource
           }
         } else {
           $resource['path'] = $minResult;
+        }
+        if (isset($_GET['debug'])) {
+          $debugArray[$resource['path']] = $origPath;
         }
       }
 
@@ -415,6 +442,11 @@ class Resource
     }
     if (!self::allowMinification()) {
       $return .= '&m=false';
+    }
+    if (isset($_GET['debug']) && !empty($debugArray)) {
+      Filters::add('body', function($content) use($debugArray) {
+        return sprintf('<pre>%s</pre>', Debug::dump($debugArray, true)) . $content;
+      });
     }
     return $return;
   }
