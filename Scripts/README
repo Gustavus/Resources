@@ -1,0 +1,19 @@
+Explanation of scripts.
+
+checkForOldStagedFiles
+  Checks to see if there are any files missed by the watcher and runs them.
+
+checkJSMinWatcher
+  Verifies that the jsMinWatcher is running and starts it if it isn't.
+
+manageNewFile
+  Runs the compiler on the specified file
+
+jsMinWatcher
+  Script that runs in the background watching the staging directory for any new files and calls manageNewFile on any found files
+
+rotateWatcher.conf
+  Watcher log rotation config file
+
+rotateWatcherLogs
+  Rotates watcher logs using rotateWatcher.conf

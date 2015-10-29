@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Script to make sure the jsMinWatcher is running.
+# This can be executed via a cronjob or anything similar.
+
+# Takes the absolute directory of the jsMinWatcher script's location as the only argument
+if [ `ps aux | grep jsMinWatcher | wc -l` -lt '2' ]
+  then
+    /cis/lib/Gustavus/Resources/Scripts/jsMinWatcher &
+fi
