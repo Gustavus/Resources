@@ -101,7 +101,7 @@ class JSMin
 
     $baseDir  = dirname($filePath) . '/';
     $baseName = basename($filePath);
-    $minifiedBaseName = sprintf('%s-%s', md5($baseDir), $baseName);
+    $minifiedBaseName = sprintf('%s-%s.js', str_replace('.js', '', $baseName), md5($baseDir));
     $minifiedFilePath = self::addDocRootToPath(self::$minifiedFolder) . $minifiedBaseName;
 
     // path to our info file

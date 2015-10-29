@@ -56,7 +56,7 @@ class JSMinTest extends TestBase
   public static function setUpBeforeClass()
   {
     parent::setUpBeforeClass();
-    self::$testMinifiedPath = sprintf('%s%s-%s', JSMin::$minifiedFolder, md5('/cis/lib/Gustavus/Resources/Test/files/'), 'test.js');
+    self::$testMinifiedPath = sprintf('%s%s-%s.js', JSMin::$minifiedFolder, 'test', md5('/cis/lib/Gustavus/Resources/Test/files/'));
   }
 
   /**
