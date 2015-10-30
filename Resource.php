@@ -7,7 +7,8 @@ namespace Gustavus\Resources;
 use Gustavus\Resources\Config,
   Gustavus\Resources\JSMin,
   Gustavus\Utility\Debug,
-  Gustavus\Extensibility\Filters;
+  Gustavus\Extensibility\Filters,
+  Gustavus\Template\Request as TemplateRequest;
 
 /**
  * Class to render out resources that we need.
@@ -31,6 +32,13 @@ class Resource
    * String to append to versions to signify a temporary version
    */
   const TEMP_VERSION = 'tmp';
+
+  /**
+   * Whether we are debugging or not
+   *
+   * @var boolean
+   */
+  public static $debug = false;
 
   /**
    * Default configurations for resources
@@ -188,12 +196,12 @@ class Resource
       return self::crushify($resource, $minified, $cssCrush, true, $includeHost);
     }
 
-    if (isset($_GET['debug'])) {
+    if (self::$debug) {
       $debugArray = [];
     }
     if ($minified && self::allowMinification() && substr($resource['path'], -3) === '.js') {
       $opts = isset($resource['jsMinOptions']) ? $resource['jsMinOptions']: [];
-      if (isset($_GET['debug'])) {
+      if (self::$debug) {
         $origPath = $resource['path'];
       }
       $minResult = JSMin::minifyFile($resource['path'], $opts);
@@ -205,12 +213,12 @@ class Resource
       } else {
         $resource['path'] = $minResult;
       }
-      if (isset($_GET['debug'])) {
+      if (self::$debug) {
         $debugArray[$resource['path']] = $origPath;
       }
     }
 
-    if (isset($_GET['debug']) && !empty($debugArray)) {
+    if (self::$debug && !empty($debugArray)) {
       Filters::add('body', function($content) use($debugArray) {
         return sprintf('<pre>%s</pre>', Debug::dump($debugArray, true)) . $content;
       });
@@ -366,7 +374,7 @@ class Resource
     $temporaryVersion = false;
     $lastKey = count($resourceNames) - 1;
 
-    if (isset($_GET['debug'])) {
+    if (self::$debug) {
       $debugArray = [];
     }
 
@@ -404,7 +412,7 @@ class Resource
 
       if (self::allowMinification() &&substr($resource['path'], -3) === '.js') {
         $opts = isset($resource['jsMinOptions']) ? $resource['jsMinOptions']: [];
-        if (isset($_GET['debug'])) {
+        if (self::$debug) {
           $origPath = $resource['path'];
         }
         $minResult = JSMin::minifyFile($resource['path'], $opts);
@@ -416,7 +424,7 @@ class Resource
         } else {
           $resource['path'] = $minResult;
         }
-        if (isset($_GET['debug'])) {
+        if (self::$debug) {
           $debugArray[$resource['path']] = $origPath;
         }
       }
@@ -443,7 +451,7 @@ class Resource
     if (!self::allowMinification()) {
       $return .= '&m=false';
     }
-    if (isset($_GET['debug']) && !empty($debugArray)) {
+    if (self::$debug && !empty($debugArray)) {
       Filters::add('body', function($content) use($debugArray) {
         return sprintf('<pre>%s</pre>', Debug::dump($debugArray, true)) . $content;
       });
@@ -477,4 +485,8 @@ class Resource
   {
     return !\Config::isBeta();
   }
+}
+
+if (TemplateRequest::useDebug()) {
+  Resource::$debug = true;
 }
