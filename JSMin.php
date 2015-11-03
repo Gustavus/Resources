@@ -111,10 +111,14 @@ class JSMin
     // build our options hash so we can determine if the file was minified with the same options
     $minifyOptionsHash = self::buildMinifyOptionsHash($minifyOptions);
     $fileMTime         = filemtime($filePath);
-    // Look at our info file to
-    if (file_exists($minifyInfoPath) && file_exists($minifiedFilePath)) {
-      // we need to see when we last minified the file.
+    if (file_exists($minifyInfoPath)) {
       $minifyInfo = json_decode(file_get_contents($minifyInfoPath), true);
+    } else {
+      $minifyInfo = [];
+    }
+    // Look at our info file to
+    if (!empty($minifyInfo) && file_exists($minifiedFilePath)) {
+      // we need to see when we last minified the file.
       // make sure the correct information is in our info file
       if (isset($minifyInfo[$minifiedBaseName], $minifyInfo[$minifiedBaseName]['optionsHash'], $minifyInfo[$minifiedBaseName]['mTime'])) {
         $fileInfo = $minifyInfo[$minifiedBaseName];
@@ -136,10 +140,6 @@ class JSMin
           return self::removeDocRootFromPath($minifiedFilePath);
         }
       }
-    }
-
-    if (!isset($minifyInfo) || !is_array($minifyInfo)) {
-      $minifyInfo = [];
     }
     // we need to save our modification time and options hash
     $minifyInfo[$minifiedBaseName] = [
