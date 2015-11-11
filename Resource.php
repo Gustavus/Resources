@@ -8,7 +8,8 @@ use Gustavus\Resources\Config,
   Gustavus\Resources\JSMin,
   Gustavus\Utility\Debug,
   Gustavus\Extensibility\Filters,
-  Gustavus\Template\Request as TemplateRequest;
+  Gustavus\Template\Request as TemplateRequest,
+  DomainException;
 
 /**
  * Class to render out resources that we need.
@@ -193,7 +194,7 @@ class Resource
     if (($cssCrush !== false || (isset($resource['crush']) && $resource['crush'])) && substr($resource['path'], -4) === '.css') {
       // css file. Let's pass this through css crush and return the crushed file
       unset($resource['crush']);
-      return self::crushify($resource, $minified, $cssCrush, true, $includeHost);
+      return CSSMin::crushify($resource, $minified, $cssCrush, true, $includeHost);
     }
 
     if (self::$debug) {
@@ -224,136 +225,12 @@ class Resource
       });
     }
 
-    if (strpos($resource['path'], JSMin::$minifiedFolder) === false && $minified) {
-      // not an already minified resource
-      return sprintf('%s%s%s?v=%s%s',
-          ($includeHost ? self::determineHost() : ''),
-          self::MIN_PREFIX,
-          $resource['path'],
-          $resource['version'],
-          (!self::allowMinification() ? '&m=false' : '')
-      );
-    } else {
-      return sprintf('%s%s?v=%s',
-          ($includeHost ? self::determineHost() : ''),
-          $resource['path'],
-          $resource['version']
-      );
-    }
+    return sprintf('%s%s?v=%s',
+        ($includeHost ? self::determineHost() : ''),
+        $resource['path'],
+        $resource['version']
+    );
   }
-
-  /**
-   * CssCrushifies a single resource
-   *
-   * @param  array    $resource   array of resource config with keys of path and version
-   * @param  boolean  $minified   whether or not to minify the resource
-   * @param  array|boolean  $additionalOpts Additional options to pass to css crush.
-   *   Key of 'crushMethod' is used internally to determine how to crush the file. File option returns the filename, inline returns html containing all of the styles. Defaults to file
-   *   More options can be found in <a href="http://the-echoplex.net/csscrush/#api--options">crush's documentation</a>.
-   * @param  boolean  $urlify     whether or not to return the url version or the array version of this resource
-   * @param  boolean $includeHost Whether to include the host in the returned url
-   * @return string|array String if $urlify is true, otherwise an array.
-   */
-  private static function crushify($resource, $minified, $additionalOpts, $urlify = true, $includeHost = true)
-  {
-    if (!\Config::isBlog()) {
-      // we don't want to crush files as the blog's httpd user due to permission issues, and doc_root issues.
-      if (!self::allowMinification()) {
-        // we don't want to minify anything
-        $minified = false;
-      }
-
-      if (isset($additionalOpts['crushMethod']) && in_array($additionalOpts['crushMethod'], ['file', 'inline'])) {
-        $crushMethod = $additionalOpts['crushMethod'];
-      } else {
-        $crushMethod = 'file';
-      }
-
-      $cssCrushOptions = ['minify' => $minified, 'versioning' => false, 'doc_root' => '/cis/www'];
-
-      if (is_array($additionalOpts)) {
-        $cssCrushOptions = array_merge($cssCrushOptions, $additionalOpts);
-      }
-      if (isset($cssCrushOptions['vars'])) {
-        $cssCrushOptions['vars'] = array_merge($cssCrushOptions['vars'], Config::$globalCrushVariables);
-      } else {
-        $cssCrushOptions['vars'] = Config::$globalCrushVariables;
-      }
-
-      $crushResult = \CssCrush\CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
-
-      if ($crushMethod !== 'file') {
-        return $crushResult;
-      }
-    }
-
-    if (!isset($resource['version'])) {
-      // make sure the resource has a version
-      $resource['version'] = 1;
-    }
-    // add the version of our global variables so the browser doesn't use a version with old variables
-    $resource['version'] += Config::GLOBAL_CRUSH_VARIABLES_VERSION;
-
-    if ($urlify) {
-      return sprintf('%s%s?v=%s',
-          ($includeHost ? self::determineHost() : ''),
-          str_replace('.css', self::CRUSH_EXTENSION, $resource['path']),
-          $resource['version']
-      );
-    } else {
-      // we don't want this resource urlified.
-      $resource['path'] = str_replace('.css', self::CRUSH_EXTENSION, $resource['path']);
-      return $resource;
-    }
-  }
-
-  /**
-   * Renders out a crushed css resource.
-   * This requires that the location of the css file is writeable by httpd
-   *
-   * @param  string|array  $resourceName Either a single resource name, an array of resource names or resource info, or an array of resource info
-   * @param  boolean $minified Whether we should minify the code or not
-   * @param  array|boolean $cssCrushOptions Options to pass onto cssCrush
-   * @param  boolean $includeHost Whether to include the host in the returned url
-   * @return string
-   */
-  public static function renderCSS($resourceName, $minified = true, $cssCrushOptions = true, $includeHost = true)
-  {
-    if (is_array($resourceName) && !array_key_exists('path', $resourceName)) {
-      // working with multiple css resources
-      $crushedResources = [];
-      foreach ($resourceName as $resource) {
-        if (!is_array($resource)) {
-          $defaultResources = self::getResourceInfo($resource);
-          if (!is_array($defaultResources) || array_key_exists('path', $defaultResources)) {
-            $defaultResources = [$defaultResources];
-          }
-
-          foreach ($defaultResources as $defaultResource) {
-            if (isset($defaultResource['crush']) && $defaultResource['crush']) {
-              unset($defaultResource['crush']);
-              $defaultResource = self::crushify($defaultResource, $minified, $cssCrushOptions, false);
-            }
-            $crushedResources[] = $defaultResource;
-          }
-        } else {
-          if ($cssCrushOptions !== false || (isset($resource['crush']) && $resource['crush'])) {
-            unset($resource['crush']);
-            $crushedResources[] = self::crushify($resource, $minified, $cssCrushOptions, false);
-          } else {
-            $crushedResources[] = $resource;
-          }
-        }
-      }
-      if (count($crushedResources) === 1) {
-        return self::renderResource(current($crushedResources), false, false, $includeHost);
-      } else {
-        return self::renderResources($crushedResources, false, $includeHost);
-      }
-    }
-    return self::renderResource($resourceName, $minified, $cssCrushOptions, $includeHost);
-  }
-
 
   /**
    * Renders out a bunch of resources using the minifier and adds the versions of all the resources up so that if you increment one version, the concatenated file will be incremented accordingly
@@ -366,9 +243,9 @@ class Resource
   private static function renderResources(array $resourceNames, $cssCrush = false, $includeHost = true)
   {
     if ($includeHost) {
-      $return  = self::determineHost() . self::MIN_PREFIX;
+      $return  = self::determineHost();
     } else {
-      $return = self::MIN_PREFIX;
+      $return = '';
     }
     $version = 0;
     $temporaryVersion = false;
@@ -377,6 +254,15 @@ class Resource
     if (self::$debug) {
       $debugArray = [];
     }
+
+    // flag for what type of resource we are rendering. Allows us to not mix css and js.
+    $resourceType = '';
+    // Storage for building our bundle information. Note, all three variables will have the same index for the same file.
+    // paths to all the files we are rendering
+    $resourcePaths    = [];
+    $srcResourcePaths = [];
+    // mTimes of the files we are rendering
+    $resourceMTimes   = [];
 
     for ($i = 0; $i <= $lastKey; ++$i) {
       $resourceName = $resourceNames[$i];
@@ -404,42 +290,66 @@ class Resource
         // resource not found. keep going
         continue;
       }
-
-      if ($cssCrush !== false || ((isset($resource['crush']) && $resource['crush']) && substr($resource['path'], -4) === '.css')) {
-        unset($resource['crush']);
-        $resource = self::crushify($resource, true, $cssCrush, false, false);
-      }
-
-      if (self::allowMinification() &&substr($resource['path'], -3) === '.js') {
-        $opts = isset($resource['jsMinOptions']) ? $resource['jsMinOptions']: [];
-        if (self::$debug) {
-          $origPath = $resource['path'];
+      // make sure we aren't cross rendering resource types
+      if (substr($resource['path'], -4) === '.css') {
+        // css file
+        if (empty($resourceType)) {
+          $resourceType = 'css';
+        } else if ($resourceType !== 'css') {
+          throw new DomainException('A css resource was attempted to be rendered with non css.');
         }
-        $minResult = JSMin::minifyFile($resource['path'], $opts);
-        if (is_array($minResult)) {
-          $resource['path'] = $minResult['minPath'];
-          if (isset($minResult['temporary']) && $minResult['temporary']) {
-            $temporaryVersion = true;
-          }
-        } else {
-          $resource['path'] = $minResult;
-        }
-        if (self::$debug) {
-          $debugArray[$resource['path']] = $origPath;
+      } else if (substr($resource['path'], -3) === '.js') {
+        // js file
+        if (empty($resourceType)) {
+          $resourceType = 'js';
+        } else if ($resourceType !== 'js') {
+          throw new DomainException('A js resource was attempted to be rendered with non js.');
         }
       }
 
-      if ($i === $lastKey) {
-        $return .= $resource['path'];
+      // this needs to be set before going through crush if it is a css resource
+      $srcResourcePaths[] = $resource['path'];
+      if ($resourceType === 'css') {
+        // we first need to gather all of our resource files check modification times and determine if we need to rebuild or not.
+        $renderedResource = '';
+        $srcResourcePaths[] = $resource['path'];
+        if ($cssCrush !== false || (isset($resource['crush']) && $resource['crush'])) {
+          unset($resource['crush']);
+          $resource = CSSMin::crushify($resource, true, $cssCrush, false, false);
+        }
+
+      }
+      // now store our updated path and mtime
+      if (file_exists(self::addDocRootToPath($resource['path']))) {
+        $resourceMTimes[]   = filemtime(self::addDocRootToPath($resource['path']));
       } else {
-        $return .= "{$resource['path']},";
+        $resourceMTimes[] = 0;
       }
+      $resourcePaths[]    = $resource['path'];
+
       if (!isset($resource['version'])) {
         // make sure the resource has a version
         $resource['version'] = 1;
       }
       $version += $resource['version'];
     }
+
+    // we have all of our bundle information built. Now actually build the bundles.
+    if ($resourceType === 'css') {
+      $return .= CSSMin::bundle($resourcePaths, $srcResourcePaths, $resourceMTimes, self::allowMinification());
+    } else if ($resourceType === 'js') {
+      $return .= JSMin::bundle($resourcePaths, $resourceMTimes, self::allowMinification());
+    } else {
+      // we should never get here, but just in case.
+      throw new DomainException(sprintf('The resource type of %s is not supported.', $resourceType));
+    }
+    if (self::$debug) {
+      $debugArray[basename($return)] = [
+        'srcPaths'      => $srcResourcePaths,
+        'resourcePaths' => $resourcePaths,
+      ];
+    }
+
     // subract the number of files -1 from the version
     // If we have 5 files of version 1, we want the version to be 1.
     // If one file increments to version 2, we want it to be version 2.
@@ -447,9 +357,6 @@ class Resource
     $return .= '?v=' . ($version - $lastKey);
     if ($temporaryVersion) {
       $return .= self::TEMP_VERSION;
-    }
-    if (!self::allowMinification()) {
-      $return .= '&m=false';
     }
     if (self::$debug && !empty($debugArray)) {
       Filters::add('body', function($content) use($debugArray) {
@@ -460,11 +367,26 @@ class Resource
   }
 
   /**
+   * Renders out a crushed css resource.
+   * This requires that the location of the css file is writeable by httpd
+   *
+   * @param  string|array  $resourceName Either a single resource name, an array of resource names or resource info, or an array of resource info
+   * @param  boolean $minified Whether we should minify the code or not
+   * @param  array|boolean $cssCrushOptions Options to pass onto cssCrush
+   * @param  boolean $includeHost Whether to include the host in the returned url
+   * @return string
+   */
+  public static function renderCSS($resourceName, $minified = true, $cssCrushOptions = true, $includeHost = true)
+  {
+    return self::renderResource($resourceName, $minified, $cssCrushOptions, $includeHost);
+  }
+
+  /**
    * Determines what host to use based on the current server
    *
    * @return string
    */
-  private static function determineHost()
+  public static function determineHost()
   {
     if (\Config::isBeta()) {
       if (\Config::isAlpha()) {
@@ -477,11 +399,22 @@ class Resource
   }
 
   /**
+   * Adds the DOC_ROOT to the filepath
+   *
+   * @param string $filePath Path of the file to add the doc root to
+   * @return string
+   */
+  public static function addDocRootToPath($filePath)
+  {
+    return str_replace('//', '/', $_SERVER['DOCUMENT_ROOT'] . $filePath);
+  }
+
+  /**
    * Whether or not we want to minify resources
    *
    * @return boolean
    */
-  private static function allowMinification()
+  public static function allowMinification()
   {
     return !\Config::isBeta();
   }
