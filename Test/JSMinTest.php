@@ -118,46 +118,19 @@ class JSMinTest extends TestBase
   /**
    * @test
    */
-  public function addDocRootToPath()
-  {
-    unset($this->overrideToken);
-    $_SERVER['DOCUMENT_ROOT'] = '/cis/www';
-    $path = '/resources/arst/';
-    $this->assertSame('/cis/www/resources/arst/', $this->call('\Gustavus\Resources\JSMin', 'addDocRootToPath', [$path]));
-  }
-
-  /**
-   * @test
-   */
-  public function addDocRootToPathWithTrailingSlashInDocRoot()
-  {
-    unset($this->overrideToken);
-    $_SERVER['DOCUMENT_ROOT'] = '/cis/www/';
-    $path = '/resources/arst/';
-    $this->assertSame('/cis/www/resources/arst/', $this->call('\Gustavus\Resources\JSMin', 'addDocRootToPath', [$path]));
-  }
-
-  /**
-  * test
-  */
-  public function performMinification()
-  {
-    $minifyOptions = $this->get('\Gustavus\Resources\JSMin', 'minifyOptions');
-
-    $result = $this->call('\Gustavus\Resources\JSMin', 'performMinification', [self::$testFilePath, $minifyOptions]);
-    $this->assertNotEmpty($result);
-    $origFileContents = file_get_contents(self::$testFilePath);
-    $this->assertNotSame($origFileContents, $result);
-    $this->assertLessThan(strlen($origFileContents), strlen($result));
-  }
-
-  /**
-   * @test
-   */
   public function minifyFileAlreadyMinfied()
   {
     $result = JSMin::minifyFile(JSMin::$minifiedFolder . 'arst.js');
     $this->assertSame(JSMin::$minifiedFolder . 'arst.js', $result);
+  }
+
+  /**
+   * @test
+   */
+  public function minifyFileNonExistent()
+  {
+    $result = JSMin::minifyFile('/arst/test/arst/test/arst.js');
+    $this->assertSame('/arst/test/arst/test/arst.js', $result);
   }
 
   /**
@@ -170,16 +143,34 @@ class JSMinTest extends TestBase
     $result = JSMin::minifyFile(self::$testFilePath);
 
     $this->assertNotSame(self::$testFilePath, $result);
-    $this->assertSame(self::$testMinifiedPath, $result);
+    $this->assertSame(['minPath' => self::$testMinifiedPath, 'temporary' => true], $result);
     $this->assertTrue(file_exists($this->get('\Gustavus\Resources\JSMin', 'stagingDir') . basename(self::$testMinifiedPath)));
   }
 
   /**
-  * @test
-  * @dependsOn minifyFile
-  */
+   * @test
+   */
+  public function minifyFileNoTempFiles()
+  {
+    $this->set('\Gustavus\Resources\JSMin', 'saveTemporaryFile', false);
+    @unlink(self::$minifyInfoPath);
+    @unlink(self::$testMinifiedPath);
+    $result = JSMin::minifyFile(self::$testFilePath);
+
+    $this->assertNotSame(self::$testFilePath, $result);
+    $this->assertSame(self::$testMinifiedPath, $result);
+    $this->assertTrue(file_exists($this->get('\Gustavus\Resources\JSMin', 'stagingDir') . basename(self::$testMinifiedPath)));
+    $this->set('\Gustavus\Resources\JSMin', 'saveTemporaryFile', true);
+  }
+
+  /**
+   * @test
+   * @dependsOn minifyFile
+   */
   public function minifyFileAlreadyExists()
   {
+    $this->minifyFile();
+    unlink(self::$testMinifiedPath . JSMin::TEMPORARY_FLAG_EXT);
     $this->assertTrue(file_exists(self::$minifyInfoPath));
     $fileMTime = filemtime(self::$minifyInfoPath);
 
@@ -191,11 +182,12 @@ class JSMinTest extends TestBase
   }
 
   /**
-  * @test
-  * @dependsOn minifyFile
-  */
+   * @test
+   * @dependsOn minifyFile
+   */
   public function minifyFileAlreadyExistsWithDifferentOptions()
   {
+    $this->minifyFile();
     set_error_handler([$this, 'handleNotice'], E_USER_NOTICE);
     $this->assertTrue(file_exists(self::$minifyInfoPath));
     $fileMTime = filemtime(self::$minifyInfoPath);
@@ -217,12 +209,82 @@ class JSMinTest extends TestBase
     @unlink(self::$minifyInfoPath);
     @unlink(self::$testMinifiedPath);
     $result = JSMin::minifyFile(self::$testFilePath);
-    $this->assertSame(self::$testMinifiedPath, $result);
-    file_put_contents(self::$testMinifiedPath, 'temp file contents');
-    file_put_contents(self::$testMinifiedPath . JSMin::TEMPORARY_FLAG_EXT, 'tmp');
+    $this->assertSame(['minPath' => self::$testMinifiedPath, 'temporary' => true], $result);
+    $this->assertTrue(file_exists(self::$testMinifiedPath . JSMin::TEMPORARY_FLAG_EXT));
     $result = JSMin::minifyFile(self::$testFilePath);
 
     $this->assertSame(['minPath' => self::$testMinifiedPath, 'temporary' => true], $result);
     $this->assertTrue(file_exists($this->get('\Gustavus\Resources\JSMin', 'stagingDir') . basename(self::$testMinifiedPath)));
+    // now remove the temp file and make sure we get a non-temp resource back
+    unlink(self::$testMinifiedPath . JSMin::TEMPORARY_FLAG_EXT);
+    $result = JSMin::minifyFile(self::$testFilePath);
+
+    $this->assertSame(self::$testMinifiedPath, $result);
+    $this->assertTrue(file_exists($this->get('\Gustavus\Resources\JSMin', 'stagingDir') . basename(self::$testMinifiedPath)));
+  }
+
+  /**
+   * @test
+   */
+  public function bundle()
+  {
+    $resources = ['/cis/lib/Gustavus/Resources/Test/files/arst.js', '/cis/lib/Gustavus/Resources/Test/files/test.js'];
+    $result = JSMin::bundle($resources, [1, 1]);
+
+    $file = 'testBNDL-' . md5(implode(',', $resources)) . '.js';
+    $this->assertContains($file, $result);
+    $this->assertTrue(file_exists(JSMin::$minifiedFolder . $file));
+    $this->assertNotContains('/**', file_get_contents(JSMin::$minifiedFolder . $file));
+  }
+
+  /**
+   * @test
+   */
+  public function bundleNoMinify()
+  {
+    $resources = ['/cis/lib/Gustavus/Resources/Test/files/test.js', '/cis/lib/Gustavus/Resources/Test/files/arst.js'];
+    $result = JSMin::bundle($resources, [1, 1], false);
+
+    $file = 'arstBNDL-' . md5(implode(',', $resources)) . '.js';
+    $this->assertContains($file, $result);
+    $this->assertTrue(file_exists(JSMin::$minifiedFolder . $file));
+    $this->assertContains('/**', file_get_contents(JSMin::$minifiedFolder . $file));
+  }
+
+  /**
+   * @test
+   */
+  public function bundleWithExistingInfoFile()
+  {
+    file_put_contents(JSMin::$minifiedFolder . JSMin::$minifyInfoFile, json_encode([]));
+    $resources = ['/cis/lib/Gustavus/Resources/Test/files/arst.js', '/cis/lib/Gustavus/Resources/Test/files/test.js'];
+    $result = JSMin::bundle($resources, [1, 1]);
+
+    $file = 'testBNDL-' . md5(implode(',', $resources)) . '.js';
+    $this->assertContains($file, $result);
+    $this->assertTrue(file_exists(JSMin::$minifiedFolder . $file));
+  }
+
+  /**
+   * @test
+   */
+  public function bundleReRun()
+  {
+    $resources = ['/cis/lib/Gustavus/Resources/Test/files/arst.js', '/cis/lib/Gustavus/Resources/Test/files/test.js'];
+    $result = JSMin::bundle($resources, $resources, [1, 1]);
+
+    $file = 'testBNDL-' . md5(implode(',', $resources)) . '.js';
+    $this->assertContains($file, $result);
+    $minPath = JSMin::$minifiedFolder . $file;
+    $this->assertTrue(file_exists($minPath));
+    // change our file so we can verify that we didn't regenerate it.
+    file_put_contents($minPath, file_get_contents($minPath) . 'arstAddition');
+
+    $result = JSMin::bundle($resources, $resources, [1, 1]);
+
+    $this->assertContains($file, $result);
+    $this->assertTrue(file_exists($minPath));
+    // make sure our file wasn't re-generated
+    $this->assertContains('arstAddition', file_get_contents($minPath));
   }
 }

@@ -5,7 +5,7 @@
  */
 namespace Gustavus\Resources;
 
-use Gustavus\Utility\CURLRequest;
+use RuntimeException;
 
 /**
  * Class to minify javascript files using Google's closure compiler
@@ -36,11 +36,6 @@ class JSMin
    * Location for all of our minified files
    */
   public static $minifiedFolder = '/js/min/';
-
-  /**
-   * Location for all of our minified files
-   */
-  public static $minifiedWebFolder = '/js/min/';
 
   /**
    * File to store our minify information in.
@@ -83,7 +78,7 @@ class JSMin
       return $filePath;
     }
     // add our doc root onto the file path
-    $filePath = self::addDocRootToPath($filePath);
+    $filePath = Resource::addDocRootToPath($filePath);
     if (!file_exists($filePath)) {
       return self::removeDocRootFromPath($filePath);
     }
@@ -102,10 +97,10 @@ class JSMin
     $baseDir  = dirname($filePath) . '/';
     $baseName = basename($filePath);
     $minifiedBaseName = sprintf('%s-%s.js', str_replace('.js', '', $baseName), md5($baseDir));
-    $minifiedFilePath = self::addDocRootToPath(self::$minifiedFolder) . $minifiedBaseName;
+    $minifiedFilePath = Resource::addDocRootToPath(self::$minifiedFolder) . $minifiedBaseName;
 
     // path to our info file
-    $minifyInfoPath = self::addDocRootToPath(self::$minifiedFolder) . self::$minifyInfoFile;
+    $minifyInfoPath = Resource::addDocRootToPath(self::$minifiedFolder) . self::$minifyInfoFile;
     // Note: We use an info file because just comparing timestamps might not be enough in some situations. ie. If we removed a minified file on Lisa, then copied a file from Bart, the copied file on Lisa could still have an mtime less than that of our new minified file.
 
     // build our options hash so we can determine if the file was minified with the same options
@@ -150,18 +145,14 @@ class JSMin
 
     if (self::$saveTemporaryFile) {
       // actually put a temporary file there to have something in place while waiting for the stagedFile to be ran.
-      $_GET['f'] = self::removeDocRootFromPath($filePath);
-      $min_serveOptions['quiet'] = true;
-      $min_serveOptions['encodeOutput'] = false;
-      $minifyResult = include '/cis/www/min/index.php';
-      $temporaryFile = $minifyResult['content'];
+      $temporaryFile = self::buildTemporaryFile($filePath);
 
-      if ((file_exists($minifiedFilePath) && !is_writable($minifiedFilePath)) || !is_writable(self::addDocRootToPath(self::$minifiedFolder))) {
+      if ((file_exists($minifiedFilePath) && !is_writable($minifiedFilePath)) || !is_writable(Resource::addDocRootToPath(self::$minifiedFolder))) {
         // we can't write to our minified file
         trigger_error(sprintf('Couldn\'t write to the file: "%s"', $minifiedFilePath), E_USER_NOTICE);
         return self::removeDocRootFromPath($filePath);
       }
-      if ((file_exists($minifiedFilePath . self::TEMPORARY_FLAG_EXT) && !is_writable($minifiedFilePath . self::TEMPORARY_FLAG_EXT)) || !is_writable(self::addDocRootToPath(self::$minifiedFolder))) {
+      if ((file_exists($minifiedFilePath . self::TEMPORARY_FLAG_EXT) && !is_writable($minifiedFilePath . self::TEMPORARY_FLAG_EXT)) || !is_writable(Resource::addDocRootToPath(self::$minifiedFolder))) {
         // we can't save our temporary flag
         trigger_error(sprintf('Couldn\'t save our temporary flag file: "%s"', $minifiedFilePath . self::TEMPORARY_FLAG_EXT), E_USER_NOTICE);
         return self::removeDocRootFromPath($filePath);
@@ -174,7 +165,7 @@ class JSMin
       return self::removeDocRootFromPath($filePath);
     }
 
-    if ((file_exists($minifyInfoPath) && !is_writable($minifyInfoPath)) || !is_writable(self::addDocRootToPath(self::$minifiedFolder))) {
+    if ((file_exists($minifyInfoPath) && !is_writable($minifyInfoPath)) || !is_writable(Resource::addDocRootToPath(self::$minifiedFolder))) {
       // our info file is not writable
       trigger_error(sprintf('Couldn\'t write to our minify info file: "%s"', $minifyInfoPath), E_USER_NOTICE);
       return self::removeDocRootFromPath($filePath);
@@ -191,6 +182,100 @@ class JSMin
   }
 
   /**
+   * Bundles javascript resources together into one file.
+   *
+   * @param  array  $resourcePaths  Paths to all the resources we are bundling
+   * @param  array  $resourceMTimes Modification times of all the files we are bundling
+   * @param  boolean $minify        Whether we want these to be minified or just bundled
+   * @return string Path to the bundled resource
+   */
+  public static function bundle(array $resourcePaths, array $resourceMTimes, $minify = true)
+  {
+    $bundleName = sprintf('%sBNDL-%s.js', str_replace('.js', '', basename(end($resourcePaths))), md5(implode(',', $resourcePaths)));
+    $bundlePath = sprintf('%s%s', self::$minifiedFolder, $bundleName);
+    $absBundlePath = Resource::addDocRootToPath($bundlePath);
+
+    if ((file_exists($absBundlePath) && !is_writable($absBundlePath)) || !is_writable(Resource::addDocRootToPath(self::$minifiedFolder))) {
+      // we can't write to our minified file
+      throw new RuntimeException(sprintf('Couldn\'t write to the file: "%s"', $absBundlePath));
+    }
+
+    $minifyInfoPath = Resource::addDocRootToPath(self::$minifiedFolder) . self::$minifyInfoFile;
+    if (file_exists($minifyInfoPath)) {
+      $minifyInfo = json_decode(file_get_contents($minifyInfoPath), true);
+    } else {
+      $minifyInfo = [];
+    }
+
+    if (!empty($minifyInfo) &&
+      file_exists($absBundlePath) &&
+      isset($minifyInfo[$bundleName], $minifyInfo[$bundleName]['mTimes']) &&
+      $minifyInfo[$bundleName]['mTimes'] === json_encode($resourceMTimes)) {
+      // our file hasn't changed.
+      return $bundlePath;
+    }
+
+    if (!$minify) {
+      // we need to manually build our bundle from the non-minified resources.
+      $bundle = '';
+      $joinSeparator = '';
+      foreach ($resourcePaths as $resourcePath) {
+        if (!file_exists($resourcePath)) {
+          continue;
+        }
+        $bundle .= $joinSeparator . file_get_contents($resourcePath);
+        $joinSeparator = ';';
+      }
+    } else {
+      $bundle = self::buildTemporaryFile($resourcePaths);
+      $absResourcePaths = array_map(function($item) {return Resource::addDocRootToPath($item);}, $resourcePaths);
+      if (!self::stageFile($absResourcePaths, $absBundlePath, self::$minifyOptions)) {
+        trigger_error(sprintf('Failed to stage the file: %s', $bundleName), E_USER_NOTICE);
+      }
+    }
+
+    $minifyInfo[$bundleName] = [
+      'mTimes'      => json_encode($resourceMTimes),
+      'sourceFiles' => json_encode($resourcePaths),
+    ];
+    if ((file_exists($minifyInfoPath) && !is_writable($minifyInfoPath)) || !is_writable(Resource::addDocRootToPath(self::$minifiedFolder))) {
+      // our info file is not writable
+      trigger_error(sprintf('Couldn\'t write to our minify info file: "%s"', $minifyInfoPath), E_USER_NOTICE);
+    } else {
+      file_put_contents($minifyInfoPath, json_encode($minifyInfo));
+    }
+
+    file_put_contents($absBundlePath, $bundle);
+    file_put_contents($absBundlePath . self::TEMPORARY_FLAG_EXT, 'temporary flag');
+
+    return $bundlePath;
+  }
+
+  /**
+   * Builds a temporary file using our old minifier
+   *
+   * @param  string $filePath Path to the file to build
+   * @return string
+   */
+  private static function buildTemporaryFile($filePath)
+  {
+    if (is_array($filePath)) {
+      $path = '';
+      foreach ($filePath as $file) {
+        $path .= ',' . self::removeDocRootFromPath($file);
+      }
+      $path = ltrim($path, ',');
+    } else {
+      $path = self::removeDocRootFromPath($filePath);
+    }
+    $_GET['f'] = $path;
+    $min_serveOptions['quiet'] = true;
+    $min_serveOptions['encodeOutput'] = false;
+    $minifyResult = include '/cis/www/min/index.php';
+    return $minifyResult['content'];
+  }
+
+  /**
    * Saves a file with the compiler command to be executed in our watched directory
    *
    * @param  string $sourceFilePath     Source file to compile
@@ -203,14 +288,44 @@ class JSMin
     if (!is_dir(self::$stagingDir)) {
       mkdir(self::$stagingDir, 0777, true);
     }
+    if (is_array($sourceFilePath)) {
+      $sourceFilePath = implode(' ', $sourceFilePath);
+      $isBundle = true;
+    } else {
+      $isBundle = false;
+    }
     $options = '';
     foreach ($compilationOptions as $option => $value) {
       $options .= sprintf(' --%s %s', $option, $value);
     }
-    $cmd = sprintf('java -jar /cis/lib/Gustavus/Resources/closure-compiler/compiler.jar --js %s --js_output_file %s%s', $sourceFilePath, $destinationPath, $options);
+    if ($isBundle || !self::reportWarningsForFile($sourceFilePath)) {
+      // don't output warnings
+      $options .= ' --warning_level QUIET';
+    }
+    $cmd = sprintf('java -jar /cis/lib/Gustavus/Resources/closure-compiler/compiler.jar --js_output_file %s%s %s', $destinationPath, $options, $sourceFilePath);
 
     file_put_contents(self::$stagingDir . basename($destinationPath), $cmd);
 
+    return true;
+  }
+
+  /**
+   * Checks whether we want to report warnings for the specified file.
+   *
+   * @param  string $filePath Absolute path to the file in question
+   * @return boolean
+   */
+  private static function reportWarningsForFile($filePath)
+  {
+    if (strpos($filePath, '/cis/www/js/Gustavus') !== false) {
+      // we want our Gustavus utiltiy bundle to throw warnings
+      return true;
+    } else if (strpos($filePath, '/cis/www/js/') !== false) {
+      // we don't want our third party libraries to throw warnings
+      return false;
+    }
+    // @todo add a blacklist if we need more to be excluded
+    // everything else defaults to throwing warnings
     return true;
   }
 
@@ -234,16 +349,5 @@ class JSMin
   private static function removeDocRootFromPath($filePath)
   {
     return str_replace('//', '/', '/' . str_replace($_SERVER['DOCUMENT_ROOT'], '', $filePath));
-  }
-
-  /**
-   * Adds the DOC_ROOT to the filepath
-   *
-   * @param string $filePath Path of the file to add the doc root to
-   * @return string
-   */
-  private static function addDocRootToPath($filePath)
-  {
-    return str_replace('//', '/', $_SERVER['DOCUMENT_ROOT'] . $filePath);
   }
 }
