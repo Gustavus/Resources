@@ -2,3 +2,5 @@ Logs/
 JSMinWeb/*.js
 JSMinWeb/*.jsTmp
 JSMinWeb/.gacmin
+CSSMinWeb/*.css
+CSSMinWeb/.gacmin
