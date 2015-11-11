@@ -71,11 +71,10 @@ class CSSMin
 
       $cssCrushOptions['output_dir'] = Resource::addDocRootToPath(self::$minifiedFolder);
       $cssCrushOptions['output_file'] = $minFileName;
-      //var_dump('arst', $path, $dir, $basename, $minFileName);
+
       $crushResult = \CssCrush\CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
 
       $resource['path'] = self::$minifiedFolder . $minFileName;
-      // var_dump($crushMethod, $crushResult->string, $crushResult);
 
       if ($crushMethod !== 'file') {
         return $crushResult;
