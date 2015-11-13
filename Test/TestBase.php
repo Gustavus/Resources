@@ -21,7 +21,7 @@ class TestBase extends \Gustavus\Test\Test
    * Token for overriding methods
    * @var mixed
    */
-  protected $overrideToken = [];
+  protected static $overrideToken = [];
 
   /**
    * Location of our minify info file
@@ -51,6 +51,15 @@ class TestBase extends \Gustavus\Test\Test
     self::$minifiedCSSFolderBackup = CSSMin::$minifiedFolder;
     JSMin::$minifiedFolder = '/cis/lib/Gustavus/Resources/Test/files/min/';
     CSSMin::$minifiedFolder = '/cis/lib/Gustavus/Resources/Test/files/min/css/';
+
+    $addDocRootToken = override_method('\Gustavus\Resources\Resource', 'addDocRootToPath', function($filePath) use(&$addDocRootToken) {
+      if (strpos($filePath, '/cis/lib') !== false) {
+        return $filePath;
+      }
+      return call_overridden_func($addDocRootToken, null, $filePath);
+    });
+
+    self::$overrideToken['addDocRootToPath'] = $addDocRootToken;
   }
 
   /**
@@ -62,6 +71,7 @@ class TestBase extends \Gustavus\Test\Test
   {
     JSMin::$minifiedFolder = self::$minifiedFolderBackup;
     CSSMin::$minifiedFolder = self::$minifiedCSSFolderBackup;
+    self::$overrideToken = null;
   }
 
   /**
@@ -80,15 +90,6 @@ class TestBase extends \Gustavus\Test\Test
     if (!file_exists(CSSMin::$minifiedFolder)) {
       mkdir(CSSMin::$minifiedFolder);
     }
-
-    $addDocRootToken = override_method('\Gustavus\Resources\Resource', 'addDocRootToPath', function($filePath) use(&$addDocRootToken) {
-      if (strpos($filePath, '/cis/lib') !== false) {
-        return $filePath;
-      }
-      return call_overridden_func($addDocRootToken, null, $filePath);
-    });
-
-    $this->overrideToken['addDocRootToPath'] = $addDocRootToken;
   }
 
   /**
@@ -106,7 +107,6 @@ class TestBase extends \Gustavus\Test\Test
     if (file_exists('/cis/lib/Gustavus/Resources/Test/files/staging/')) {
       self::removeFiles('/cis/lib/Gustavus/Resources/Test/files/staging/');
     }
-    $this->overrideToken = [];
   }
 
   /**

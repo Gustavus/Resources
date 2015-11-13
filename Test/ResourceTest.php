@@ -22,8 +22,18 @@ class ResourceTest extends TestBase
    */
   public function setUp()
   {
-    $this->overrideToken['allowMinification'] = override_method('\Gustavus\Resources\Resource', 'allowMinification', function() {return true;});
+    self::$overrideToken['allowMinification'] = override_method('\Gustavus\Resources\Resource', 'allowMinification', function() {return true;});
     parent::setUp();
+  }
+
+  /**
+   * Tears down the object for each test
+   * @return void
+   */
+  public function tearDown()
+  {
+    unset(self::$overrideToken['allowMinification']);
+    parent::tearDown();
   }
 
   /**
