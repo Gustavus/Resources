@@ -20,7 +20,7 @@ cmd=`echo $cmd`
 result=`/usr/bin/time -f '" Time spent: %E Memory used: %MK' $cmd 2>&1`
 
 /usr/bin/rm "/cis/www-etc/lib/Gustavus/Resources/jsStaging/${file}"
-/usr/bin/rm "/cis/lib/Gustavus/Resources/JSMinWeb/${file}.tmpFlag"
+/usr/bin/rm "/cis/www/js/min/${file}.tmpFlag"
 
 message="$fileType: $file was found on $date. Command: \"$cmd\" File handling result: \"$result"
 # Write this message to our log
