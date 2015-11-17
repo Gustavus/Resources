@@ -83,7 +83,7 @@ class ResourceTest extends TestBase
     $this->set('\Gustavus\Resources\Resource', 'defaultResources', ['select2' => [['path' => '/js/jquery/select2/select2.css', 'version' => 1], ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1]]]);
     $expectedName = sprintf('%sBNDL-%s.css', 'select2.custom', md5('/js/jquery/select2/select2.css,/js/Gustavus/select2.custom.css'));
     $expected = sprintf('https://static-beta2.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
-    $this->assertSame($expected, Resources\Resource::renderResource(['select2']));
+    $this->assertSame($expected, Resources\Resource::renderResource(['select2'], true, false));
     $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
   }
 
@@ -143,7 +143,7 @@ class ResourceTest extends TestBase
   public function renderCSSArrayDontCrushOverride()
   {
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css', 'crush' => true];
-    $actual = Resources\Resource::renderCSS([$resource], true, false);
+    $actual = Resources\Resource::renderCSS([$resource], true, true);
     $this->assertSame(sprintf('https://static-beta2.gac.edu%shelpbox-%s.css?v=1', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox')), $actual);
   }
 
@@ -260,7 +260,7 @@ class ResourceTest extends TestBase
   public function renderResourceCrushDontCrush()
   {
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
-    $actual = Resources\Resource::renderResource([$resource], true);
+    $actual = Resources\Resource::renderResource([$resource], true, false);
     $this->assertSame('https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.css?v=1', $actual);
   }
 
@@ -340,15 +340,17 @@ class ResourceTest extends TestBase
     $this->set('\Gustavus\Resources\Resource', 'defaultResources', [
         'select2' => [
           ['path' => '/js/jquery/select2/select2.css', 'version' => 1, 'crush' => true],
-          ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1]
+          ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1, 'crush' => false]
         ],
         'qtip-css'        => [
           'path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css'
         ]
     ]);
     $crushName = sprintf('%sselect2-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/select2'));
-    $expectedName = sprintf('helpboxBNDL-%s.css', md5(sprintf('/js/jquery/qTip2/dist/jquery.qtip.min.css,%s,/js/Gustavus/select2.custom.css,/template/js/plugins/helpbox/helpbox.css', $crushName)));
-    //$expected = 'https://static-beta2.gac.edu/min/f=/js/jquery/qTip2/dist/jquery.qtip.min.css,/js/jquery/select2/select2.crush.css,/js/Gustavus/select2.custom.css,/template/js/plugins/helpbox/helpbox.css?v=1';
+    $helpboxCrushName = sprintf('%shelpbox-%s.css', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox'));
+    $qtipCrushName = sprintf('%sjquery.qtip.min-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/qTip2/dist'));
+    $expectedName = sprintf('helpboxBNDL-%s.css', md5(sprintf('%s,%s,/js/Gustavus/select2.custom.css,%s', $qtipCrushName, $crushName, $helpboxCrushName)));
+    
     $expected = sprintf('https://static-beta2.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderResource(['qtip-css', 'select2', ['path' => '/template/js/plugins/helpbox/helpbox.css']]);

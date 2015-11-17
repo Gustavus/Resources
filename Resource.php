@@ -159,7 +159,7 @@ class Resource
    * @param  boolean $includeHost Whether to include the host in the returned url
    * @return string
    */
-  public static function renderResource($resourceName, $minified = true, $cssCrush = false, $includeHost = true)
+  public static function renderResource($resourceName, $minified = true, $cssCrush = true, $includeHost = true)
   {
     if (is_array($resourceName) && !array_key_exists('path', $resourceName) && count($resourceName) === 1) {
       // we have an array of arrays, but it only contains one nested array.
@@ -191,7 +191,7 @@ class Resource
       $resource['version'] = 1;
     }
 
-    if (($cssCrush !== false || (isset($resource['crush']) && $resource['crush'])) && substr($resource['path'], -4) === '.css') {
+    if (($cssCrush !== false && !isset($resource['crush']) || (isset($resource['crush']) && $resource['crush'])) && substr($resource['path'], -4) === '.css') {
       // css file. Let's pass this through css crush and return the crushed file
       unset($resource['crush']);
       return CSSMin::crushify($resource, $minified, $cssCrush, true, $includeHost);
@@ -240,7 +240,7 @@ class Resource
    * @param  boolean $includeHost Whether to include the host in the returned url
    * @return string
    */
-  private static function renderResources(array $resourceNames, $cssCrush = false, $includeHost = true)
+  private static function renderResources(array $resourceNames, $cssCrush = true, $includeHost = true)
   {
     if ($includeHost) {
       $return  = self::determineHost();
@@ -313,7 +313,7 @@ class Resource
         // we first need to gather all of our resource files check modification times and determine if we need to rebuild or not.
         $renderedResource = '';
         $srcResourcePaths[] = $resource['path'];
-        if ($cssCrush !== false || (isset($resource['crush']) && $resource['crush'])) {
+        if (($cssCrush !== false && !isset($resource['crush'])) || (isset($resource['crush']) && $resource['crush'])) {
           unset($resource['crush']);
           $resource = CSSMin::crushify($resource, true, $cssCrush, false, false);
         }
