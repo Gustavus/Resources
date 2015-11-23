@@ -279,7 +279,7 @@ class Resource
           } else {
             $firstResource = $resource[0];
             // add all the resources to our array to make sure they get included
-            $resourceNames = array_merge(array_splice($resourceNames, 0, $i), $resource, array_splice($resourceNames, $i));
+            $resourceNames = array_merge(array_slice($resourceNames, 0, $i), $resource, array_slice($resourceNames, $i + 1));
             // we added resources, so we need to increment the lastKey variable
             $lastKey += count($resource) - 1;
             $resource = $firstResource;
@@ -312,7 +312,6 @@ class Resource
       if ($resourceType === 'css') {
         // we first need to gather all of our resource files check modification times and determine if we need to rebuild or not.
         $renderedResource = '';
-        $srcResourcePaths[] = $resource['path'];
         if (($cssCrush !== false && !isset($resource['crush'])) || (isset($resource['crush']) && $resource['crush'])) {
           unset($resource['crush']);
           $resource = CSSMin::crushify($resource, true, $cssCrush, false, false);

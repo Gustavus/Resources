@@ -362,6 +362,64 @@ class ResourceTest extends TestBase
   /**
    * @test
    */
+  public function renderResourcesCSSSubArraysSubArrayFirst()
+  {
+
+    $original = $this->get('\Gustavus\Resources\Resource', 'defaultResources');
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', [
+        'select2' => [
+          ['path' => '/js/jquery/select2/select2.css', 'version' => 1, 'crush' => true],
+          ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1, 'crush' => false]
+        ],
+        'qtip-css'        => [
+          'path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css'
+        ]
+    ]);
+    $crushName = sprintf('%sselect2-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/select2'));
+    $helpboxCrushName = sprintf('%shelpbox-%s.css', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox'));
+    $qtipCrushName = sprintf('%sjquery.qtip.min-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/qTip2/dist'));
+    $expectedName = sprintf('helpboxBNDL-%s.css', md5(sprintf('%s,/js/Gustavus/select2.custom.css,%s,%s', $crushName, $qtipCrushName, $helpboxCrushName)));
+
+    $expected = sprintf('https://static-beta2.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
+    $options['doc_root'] = '/cis/www/';
+    $actual = Resources\Resource::renderResource(['select2', 'qtip-css', ['path' => '/template/js/plugins/helpbox/helpbox.css']]);
+    $this->assertSame($expected, $actual);
+    $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
+  }
+
+  /**
+   * @test
+   */
+  public function renderResourcesCSSSubArraysSubArrayLast()
+  {
+
+    $original = $this->get('\Gustavus\Resources\Resource', 'defaultResources');
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', [
+        'select2' => [
+          ['path' => '/js/jquery/select2/select2.css', 'version' => 1, 'crush' => true],
+          ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1, 'crush' => false]
+        ],
+        'qtip-css'        => [
+          'path' => '/js/jquery/qTip2/dist/jquery.qtip.min.css'
+        ]
+    ]);
+    $crushName = sprintf('%sselect2-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/select2'));
+    $helpboxCrushName = sprintf('%shelpbox-%s.css', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox'));
+    $qtipCrushName = sprintf('%sjquery.qtip.min-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/qTip2/dist'));
+    $expectedName = sprintf('select2.customBNDL-%s.css', md5(sprintf('%s,%s,%s,/js/Gustavus/select2.custom.css', $qtipCrushName, $helpboxCrushName, $crushName)));
+
+    $expected = sprintf('https://static-beta2.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
+    $options['doc_root'] = '/cis/www/';
+    $actual = Resources\Resource::renderResource(['qtip-css', ['path' => '/template/js/plugins/helpbox/helpbox.css'], 'select2']);
+    $this->assertSame($expected, $actual);
+    $this->assertGreaterThanOrEqual(2, strpos($actual, '?'));
+    $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
+  }
+
+  /**
+   * @test
+   */
   public function addDocRootToPath()
   {
     unset($this->overrideToken);
