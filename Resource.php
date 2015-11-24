@@ -92,10 +92,10 @@ class Resource
       ],
     ],
     'bxslider'        => [
-      'path' => '/js/jquery/bxSlider/jquery.bxslider.js', 'version' => Config::BXSLIDER_VERSION
+      'path' => '/js/jquery/bxSlider/dist/jquery.bxslider.js', 'version' => Config::BXSLIDER_VERSION
     ],
     'bxslider-css'    => [
-      'path' => '/js/jquery/bxSlider/jquery.bxslider.css', 'version' => Config::BXSLIDER_VERSION
+      'path' => '/js/jquery/bxSlider/dist/jquery.bxslider.css', 'version' => Config::BXSLIDER_VERSION
     ],
     'urlutil'         => [
       'path' => '/js/Gustavus/Utility/url.js', 'version' => Config::URL_UTILITY_VERSION

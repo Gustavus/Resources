@@ -67,7 +67,7 @@ class Config
    * bxSlider version
    * @var integer
    */
-  const BXSLIDER_VERSION = 1;
+  const BXSLIDER_VERSION = '4.2.5';
 
   /**
    * url utility version
