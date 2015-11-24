@@ -40,6 +40,11 @@ class CSSMin
    */
   public static function crushify($resource, $minified, $additionalOpts, $urlify = true, $includeHost = true)
   {
+    $path = $resource['path'];
+    $dir = dirname($path);
+    $basename = basename($path);
+    $minFileName = sprintf('%s-%s.css', str_replace('.css', '', $basename), md5($dir));
+
     if (!\Config::isBlog()) {
       // we don't want to crush files as the blog's httpd user due to permission issues, and doc_root issues.
       if (!Resource::allowMinification()) {
@@ -64,22 +69,17 @@ class CSSMin
         $cssCrushOptions['vars'] = Config::$globalCrushVariables;
       }
 
-      $path = $resource['path'];
-      $dir = dirname($path);
-      $basename = basename($path);
-      $minFileName = sprintf('%s-%s.css', str_replace('.css', '', $basename), md5($dir));
-
       $cssCrushOptions['output_dir'] = Resource::addDocRootToPath(self::$minifiedFolder);
       $cssCrushOptions['output_file'] = $minFileName;
 
       $crushResult = \CssCrush\CssCrush::{$crushMethod}($resource['path'], $cssCrushOptions);
 
-      $resource['path'] = self::$minifiedFolder . $minFileName;
-
       if ($crushMethod !== 'file') {
         return $crushResult;
       }
     }
+    // change our resource to point to its minified path
+    $resource['path'] = self::$minifiedFolder . $minFileName;
 
     if (!isset($resource['version'])) {
       // make sure the resource has a version
