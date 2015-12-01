@@ -95,7 +95,8 @@ class Resource
       'path' => '/js/jquery/bxSlider/dist/jquery.bxslider.js', 'version' => Config::BXSLIDER_VERSION
     ],
     'bxslider-css'    => [
-      'path' => '/js/jquery/bxSlider/dist/jquery.bxslider.css', 'version' => Config::BXSLIDER_VERSION
+      ['path' => '/js/jquery/bxSlider/dist/jquery.bxslider.css', 'version' => Config::BXSLIDER_VERSION],
+      ['path' => '/js/Gustavus/css/bxslider.custom.css', 'version' => Config::BXSLIDER_CUSTOM_CSS_VERSION],
     ],
     'urlutil'         => [
       'path' => '/js/Gustavus/Utility/url.js', 'version' => Config::URL_UTILITY_VERSION
