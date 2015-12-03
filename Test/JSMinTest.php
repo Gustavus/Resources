@@ -57,6 +57,22 @@ class JSMinTest extends TestBase
   {
     parent::setUpBeforeClass();
     self::$testMinifiedPath = sprintf('%s%s-%s.js', JSMin::$minifiedFolder, 'test', md5('/cis/lib/Gustavus/Resources/Test/files/'));
+
+    $buildTemporaryFileToken = override_method('\Gustavus\Resources\JSMin', 'buildTemporaryFile', function($filePath) use(&$buildTemporaryFileToken) {
+      $origDocRoot = $_SERVER['DOCUMENT_ROOT'];
+      if (is_array($filePath)) {
+        $filePathToCheck = current($filePath);
+      } else {
+        $filePathToCheck = $filePath;
+      }
+      if (strpos($filePathToCheck, '/cis/lib') !== false) {
+        $_SERVER['DOCUMENT_ROOT'] = '/cis/lib/';
+      }
+      $result = call_overridden_func($buildTemporaryFileToken, null, $filePath);
+      $_SERVER['DOCUMENT_ROOT'] = $origDocRoot;
+      return $result;
+    });
+    self::$overrideToken['buildTemporaryFile'] = $buildTemporaryFileToken;
   }
 
   /**
@@ -178,6 +194,25 @@ class JSMinTest extends TestBase
 
     $this->assertNotSame(self::$testFilePath, $result);
     $this->assertSame(self::$testMinifiedPath, $result);
+    $this->assertTrue(file_exists($this->get('\Gustavus\Resources\JSMin', 'stagingDir') . basename(self::$testMinifiedPath)));
+  }
+
+  /**
+   * @test
+   * @dependsOn minifyFile
+   */
+  public function minifyFileAlreadyExistsButEmpty()
+  {
+    $this->minifyFile();
+    unlink(self::$testMinifiedPath . JSMin::TEMPORARY_FLAG_EXT);
+    file_put_contents(self::$testMinifiedPath, '');
+    $this->assertTrue(file_exists(self::$minifyInfoPath));
+    $fileMTime = filemtime(self::$minifyInfoPath);
+
+    $result = JSMin::minifyFile(self::$testFilePath);
+
+    $this->assertNotSame(self::$testFilePath, $result);
+    $this->assertSame(['minPath' => self::$testMinifiedPath, 'temporary' => true], $result);
     $this->assertTrue(file_exists($this->get('\Gustavus\Resources\JSMin', 'stagingDir') . basename(self::$testMinifiedPath)));
   }
 

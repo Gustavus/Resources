@@ -112,7 +112,7 @@ class JSMin
       $minifyInfo = [];
     }
     // Look at our info file to
-    if (!empty($minifyInfo) && file_exists($minifiedFilePath)) {
+    if (!empty($minifyInfo) && file_exists($minifiedFilePath) && filesize($minifiedFilePath) > 0) {
       // we need to see when we last minified the file.
       // make sure the correct information is in our info file
       if (isset($minifyInfo[$minifiedBaseName], $minifyInfo[$minifiedBaseName]['optionsHash'], $minifyInfo[$minifiedBaseName]['mTime'])) {
@@ -209,6 +209,7 @@ class JSMin
 
     if (!empty($minifyInfo) &&
       file_exists($absBundlePath) &&
+      filesize($absBundlePath) > 0 &&
       isset($minifyInfo[$bundleName], $minifyInfo[$bundleName]['mTimes']) &&
       $minifyInfo[$bundleName]['mTimes'] === json_encode($resourceMTimes)) {
       // our file hasn't changed.
