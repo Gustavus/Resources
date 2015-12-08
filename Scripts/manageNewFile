@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# The first parameter will be the file found
+file="$1"
+
+# The second parameter will be the type of file to specify in the log.
+if [ -z "$2" ]; then
+  fileType='New file'
+else
+  fileType=$2
+fi
+
+# Capture our date here in case publishing the file takes some time
+date=`date --rfc-3339=seconds`
+# Run manageNewFile.php on our specified staged file
+cmd=`cat "/cis/www-etc/lib/Gustavus/Resources/jsStaging/${file}"`
+cmd=`echo $cmd`
+
+# Capture both stdin and stderr to our result variable along with time and memory usage info
+result=`/usr/bin/time -f '" Time spent: %E Memory used: %MK' $cmd 2>&1`
+
+/usr/bin/rm "/cis/www-etc/lib/Gustavus/Resources/jsStaging/${file}"
+/usr/bin/rm "/cis/www/js/min/${file}.tmpFlag"
+
+message="$fileType: $file was found on $date. Command: \"$cmd\" File handling result: \"$result"
+# Write this message to our log
+echo $message >> /cis/lib/Gustavus/Resources/Scripts/Logs/watcher_log
+
+# send an email if a warning was triggered in message
+serverName=`uname -n`
+if [ `echo "$message" | grep -E "[1-9][0-9]*?\swarning" | wc -l` -gt '0' ]
+  then
+    echo -e "Google Closure Compiler warning triggered for $2\n\n$message" | mail -s "Google Closure Compiler Warning on $serverName" web+jsMinError@gustavus.edu
+elif [ `echo "$message" | grep -E "[1-9][0-9]*?\serror" | wc -l` -gt '0' ]
+  then
+    echo -e "Google Closure Compiler error triggered for $2\n\n$message" | mail -s "Google Closure Compiler Error on $serverName" web+jsMinError@gustavus.edu
+fi

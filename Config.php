@@ -65,9 +65,15 @@ class Config
 
   /**
    * bxSlider version
+   * @var string
+   */
+  const BXSLIDER_VERSION = '4.2.5';
+
+  /**
+   * bxSlider custom css version
    * @var integer
    */
-  const BXSLIDER_VERSION = 1;
+  const BXSLIDER_CUSTOM_CSS_VERSION = 1;
 
   /**
    * url utility version
