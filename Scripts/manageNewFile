@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The first parameter will be the file found
-file="$1"
+file=`basename "$1"`
 
 # The second parameter will be the type of file to specify in the log.
 if [ -z "$2" ]; then
