@@ -322,4 +322,35 @@ class JSMinTest extends TestBase
     // make sure our file wasn't re-generated
     $this->assertContains('arstAddition', file_get_contents($minPath));
   }
+
+  /**
+   * @test
+   * @dataProvider reportWarningsForFileData
+   */
+  public function reportWarningsForFile($docRoot, $expected, $filePath)
+  {
+    $origDocRoot = $_SERVER['DOCUMENT_ROOT'];
+    $_SERVER['DOCUMENT_ROOT'] = $docRoot;
+    $this->assertSame($expected, $this->call('\Gustavus\Resources\JSMin', 'reportWarningsForFile', [$filePath]));
+    $_SERVER['DOCUMENT_ROOT'] = $origDocRoot;
+  }
+
+  /**
+   * Data Provider for reportWarningsForFile
+   *
+   * @return array
+   */
+  public function reportWarningsForFileData()
+  {
+    return [
+      ['/cis/www', true, '/cis/www/js/Gustavus/arst.js'],
+      ['/cis/www', false, '/cis/www/js/arst.js'],
+      ['/cis/www/', true, '/cis/www//js/Gustavus/arst.js'],
+      ['/cis/www/', false, '/cis/www//js/arst.js'],
+      ['/cis/blog/', false, '/cis/blog/js/arst.js'],
+      ['/cis/blog', true, '/cis/blog/js/Gustavus/arst.js'],
+      ['/cis/www', true, '/cis/www/concert/js/concert.js'],
+      ['/cis/blog/', true, '/cis/blog/concert/js/concert.js'],
+    ];
+  }
 }

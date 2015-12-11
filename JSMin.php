@@ -318,10 +318,10 @@ class JSMin
    */
   private static function reportWarningsForFile($filePath)
   {
-    if (strpos($filePath, '/cis/www/js/Gustavus') !== false) {
+    if (preg_match(sprintf('`%s/+js/Gustavus`', rtrim($_SERVER['DOCUMENT_ROOT'], '/')), $filePath)) {
       // we want our Gustavus utiltiy bundle to throw warnings
       return true;
-    } else if (strpos($filePath, '/cis/www/js/') !== false) {
+    } else if (preg_match(sprintf('`%s/+js/`', rtrim($_SERVER['DOCUMENT_ROOT'], '/')), $filePath)) {
       // we don't want our third party libraries to throw warnings
       return false;
     }
