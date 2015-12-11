@@ -393,6 +393,8 @@ class Resource
         return 'https://homer.gac.edu';
       }
       return 'https://static-beta2.gac.edu';
+    } else if (\Config::isBlog()) {
+      return 'https://blog.gustavus.edu';
     } else {
       return 'https://static2.gac.edu';
     }
