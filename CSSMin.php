@@ -58,7 +58,7 @@ class CSSMin
         $crushMethod = 'file';
       }
 
-      $cssCrushOptions = ['minify' => $minified, 'versioning' => false, 'doc_root' => $_SERVER['DOCUMENT_ROOT']];
+      $cssCrushOptions = ['minify' => $minified, 'versioning' => false, 'doc_root' => '/cis/www'];
 
       if (is_array($additionalOpts)) {
         $cssCrushOptions = array_merge($cssCrushOptions, $additionalOpts);
