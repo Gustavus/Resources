@@ -7,7 +7,6 @@ namespace Gustavus\Resources;
 use Gustavus\Resources\Config,
   Gustavus\Resources\JSMin,
   Gustavus\Utility\Debug,
-  Gustavus\Extensibility\Filters,
   Gustavus\Template\Request as TemplateRequest,
   DomainException;
 
