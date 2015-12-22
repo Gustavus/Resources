@@ -221,9 +221,12 @@ class Resource
     }
 
     if (self::$debug && !empty($debugArray)) {
-      Filters::add('body', function($content) use($debugArray) {
-        return sprintf('<pre>%s</pre>', Debug::dump($debugArray, true)) . $content;
-      });
+      global $debugResources;
+      if (!isset($debugResources)) {
+        $debugResources = $debugArray;
+      } else {
+        $debugResources = array_merge($debugResources, $debugArray);
+      }
     }
 
     return sprintf('%s%s?v=%s',
@@ -359,9 +362,13 @@ class Resource
       $return .= self::TEMP_VERSION;
     }
     if (self::$debug && !empty($debugArray)) {
-      Filters::add('body', function($content) use($debugArray) {
-        return sprintf('<pre>%s</pre>', Debug::dump($debugArray, true)) . $content;
-      });
+
+      global $debugResources;
+      if (!isset($debugResources)) {
+        $debugResources = $debugArray;
+      } else {
+        $debugResources = array_merge($debugResources, $debugArray);
+      }
     }
     return $return;
   }
