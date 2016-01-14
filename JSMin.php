@@ -221,6 +221,7 @@ class JSMin
       $bundle = '';
       $joinSeparator = '';
       foreach ($resourcePaths as $resourcePath) {
+        $resourcePath = Resource::addDocRootToPath($resourcePath);
         if (!file_exists($resourcePath)) {
           continue;
         }
