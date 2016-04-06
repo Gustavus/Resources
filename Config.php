@@ -5,7 +5,7 @@
  */
 namespace Gustavus\Resources;
 
-use Gustavus\Utility\String;
+use Gustavus\Utility\GACString;
 
 /**
  * Config to keep track of resource versions
@@ -224,4 +224,4 @@ class Config
   ];
 }
 
-Config::$globalCrushVariables['host'] = rtrim((new String('/'))->buildURL(false, true)->getValue(), '/');
+Config::$globalCrushVariables['host'] = rtrim((new GACString('/'))->buildURL(false, true)->getValue(), '/');
