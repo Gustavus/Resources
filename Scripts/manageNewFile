@@ -24,7 +24,7 @@ result=`/usr/bin/time -f '" Time spent: %E Memory used: %MK' $cmd 2>&1`
 
 message="$fileType: $file was found on $date. Command: \"$cmd\" File handling result: \"$result"
 # Write this message to our log
-echo $message >> /cis/lib/Gustavus/Resources/Scripts/Logs/watcher_log
+echo $message >> /cis/log/lib/Gustavus/Resources/watcher_log
 
 # send an email if a warning was triggered in message
 serverName=`uname -n`
