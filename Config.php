@@ -85,7 +85,7 @@ class Config
    * Gustavus.jQuery.Dropdown version
    * @var integer
    */
-  const DROPDOWN_VERSION = 1;
+  const DROPDOWN_VERSION = 2;
 
   /**
    * Isotope version
