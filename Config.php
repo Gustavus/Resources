@@ -146,44 +146,44 @@ class Config
     'desktop' => '(min-width: 1025px)',
 
     // New Design Colors
-    'web-black'          => '111315',
-    'web-background'     => 'EFEFEF',
-    'web-light-gray'     => 'CFD4D8',
-    'web-light-gray-90'  => 'D1D7DA',
-    'web-light-gray-75'  => 'D7DBDE',
-    'web-light-gray-alt' => '959DA0',
-    'web-medium-gray'    => '373E42',
-    'web-medium-gray-90' => '4A4F53',
-    'web-dark-gray'      => '23272B',
-    'brand-blue-30'      => 'A7C1D4',
-    'brand-blue-50'      => '77A2C2',
-    'brand-blue-75'      => '3C7CAC',
-    'brand-blue-90'      => '17659E',
-    'brand-gold-90'      => 'FDD217',
-    'brand-gold-70'      => 'FFDE50',
-    'brand-red-50'       => 'D79084',
-    'brand-red-75'       => 'CB614F',
-    'brand-red-90'       => 'C4442F',
+    'web-black'          => '111315', //#111315
+    'web-background'     => 'EFEFEF', //#EFEFEF
+    'web-light-gray'     => 'CFD4D8', //#CFD4D8
+    'web-light-gray-90'  => 'D1D7DA', //#D1D7DA
+    'web-light-gray-75'  => 'D7DBDE', //#D7DBDE
+    'web-light-gray-alt' => '959DA0', //#959DA0
+    'web-medium-gray'    => '373E42', //#373E42
+    'web-medium-gray-90' => '4A4F53', //#4A4F53
+    'web-dark-gray'      => '23272B', //#23272B
+    'brand-blue-30'      => 'A7C1D4', //#A7C1D4
+    'brand-blue-50'      => '77A2C2', //#77A2C2
+    'brand-blue-75'      => '3C7CAC', //#3C7CAC
+    'brand-blue-90'      => '17659E', //#17659E
+    'brand-gold-90'      => 'FDD217', //#FDD217
+    'brand-gold-70'      => 'FFDE50', //#FFDE50
+    'brand-red-50'       => 'D79084', //#D79084
+    'brand-red-75'       => 'CB614F', //#CB614F
+    'brand-red-90'       => 'C4442F', //#C4442F
     //'web-blue'         => '1C5681'
-    'auxbox-blue'        => '164C78',
-    'web-highlight'      => 'f8f8f8',
+    'auxbox-blue'        => '164C78', //#164C78
+    'web-highlight'      => 'f8f8f8', //#f8f8f8
 
 
     // Gustavue Pallete
-    'brand-gold'              => 'FFCF00',
-    'brand-orange'            => 'D4891C',
-    'brand-brown'             => '4B3900',
-    'brand-red'               => 'BF311A',
-    'brand-teal'              => '005958',
-    'brand-green'             => '788E1E',
-    'brand-blue'              => '005695',
-    'brand-purple'            => '49182D',
-    'brand-pale-yellow'       => 'FFECBC',
-    'brand-pale-green'        => 'D4DB90',
-    'brand-pale-blue'         => 'C1D4E3',
-    'brand-warm-gray'         => 'EDE7DD',
-    'brand-shadow-gray'       => 'DDDDDD',
-    'brand-dark-shadow-gray'  => 'CCCCCC',
+    'brand-gold'              => 'FFCF00', //#FFCF00
+    'brand-orange'            => 'D4891C', //#D4891C
+    'brand-brown'             => '4B3900', //#4B3900
+    'brand-red'               => 'BF311A', //#BF311A
+    'brand-teal'              => '005958', //#005958
+    'brand-green'             => '788E1E', //#788E1E
+    'brand-blue'              => '005695', //#005695
+    'brand-purple'            => '49182D', //#49182D
+    'brand-pale-yellow'       => 'FFECBC', //#FFECBC
+    'brand-pale-green'        => 'D4DB90', //#D4DB90
+    'brand-pale-blue'         => 'C1D4E3', //#C1D4E3
+    'brand-warm-gray'         => 'EDE7DD', //#EDE7DD
+    'brand-shadow-gray'       => 'DDDDDD', //#DDDDDD
+    'brand-dark-shadow-gray'  => 'CCCCCC', //#CCCCCC
 
     // @todo search for uses of these
     // 'better-pale-yellow'      => 'FFFEFA',
@@ -191,13 +191,13 @@ class Config
     // 'better-pale-blue'        => 'E2E8F8',
 
     // Social Colors
-    'facebook-blue'  => '3B5998',
-    'twitter-blue'   => '55ACEE',
-    'instagram-blue' => '3F729b',
-    'flickr-blue'    => '0063DC',
-    'flickr-pink'    => 'FF0084',
-    'youtube-red'    => 'E52D27',
-    'rss-orange'     => 'FF6600',
+    'facebook-blue'  => '3B5998', //#3B5998
+    'twitter-blue'   => '55ACEE', //#55ACEE
+    'instagram-blue' => '3F729b', //#3F729b
+    'flickr-blue'    => '0063DC', //#0063DC
+    'flickr-pink'    => 'FF0084', //#FF0084
+    'youtube-red'    => 'E52D27', //#E52D27
+    'rss-orange'     => 'FF6600', //#FF6600
 
     // Fonts
     //'serif' => '"Hoefler Text", Constantia, Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif',
