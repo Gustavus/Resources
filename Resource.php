@@ -388,8 +388,10 @@ class Resource
   }
 
   /**
-   * Determines what host to use based on the current server
+   * Determines what host to use based on the current server and the resource type
+   *   if using a static server, it will be static2 for js resources and static3 for all others
    *
+   * @param string $resourceType Type of resource to determine host for. Defaults to 'js'.
    * @return string
    */
   public static function determineHost($resourceType = 'js')
