@@ -90,7 +90,7 @@ class CSSMin
 
     if ($urlify) {
       return sprintf('%s%s?v=%s',
-          ($includeHost ? Resource::determineHost() : ''),
+          ($includeHost ? Resource::determineHost('css') : ''),
           $resource['path'],
           $resource['version']
       );

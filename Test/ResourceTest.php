@@ -82,7 +82,7 @@ class ResourceTest extends TestBase
     $original = $this->get('\Gustavus\Resources\Resource', 'defaultResources');
     $this->set('\Gustavus\Resources\Resource', 'defaultResources', ['select2' => [['path' => '/js/jquery/select2/select2.css', 'version' => 1], ['path' => '/js/Gustavus/select2.custom.css', 'version' => 1]]]);
     $expectedName = sprintf('%sBNDL-%s.css', 'select2.custom', md5('/js/jquery/select2/select2.css,/js/Gustavus/select2.custom.css'));
-    $expected = sprintf('https://static-beta2.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
+    $expected = sprintf('https://static-beta3.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
     $this->assertSame($expected, Resources\Resource::renderResource(['select2'], true, false));
     $this->set('\Gustavus\Resources\Resource', 'defaultResources', $original);
   }
@@ -113,7 +113,7 @@ class ResourceTest extends TestBase
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderCSS($resource, true, $options);
-    $this->assertSame(sprintf('https://static-beta2.gac.edu%shelpbox-%s.css?v=1', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox')), $actual);
+    $this->assertSame(sprintf('https://static-beta3.gac.edu%shelpbox-%s.css?v=1', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox')), $actual);
   }
 
   /**
@@ -124,7 +124,7 @@ class ResourceTest extends TestBase
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderCSS([$resource], true, $options);
-    $this->assertSame(sprintf('https://static-beta2.gac.edu%shelpbox-%s.css?v=1', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox')), $actual);
+    $this->assertSame(sprintf('https://static-beta3.gac.edu%shelpbox-%s.css?v=1', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox')), $actual);
   }
 
   /**
@@ -134,7 +134,7 @@ class ResourceTest extends TestBase
   {
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
     $actual = Resources\Resource::renderCSS([$resource], true, false);
-    $this->assertSame('https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.css?v=1', $actual);
+    $this->assertSame('https://static-beta3.gac.edu/template/js/plugins/helpbox/helpbox.css?v=1', $actual);
   }
 
   /**
@@ -144,7 +144,7 @@ class ResourceTest extends TestBase
   {
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css', 'crush' => true];
     $actual = Resources\Resource::renderCSS([$resource], true, true);
-    $this->assertSame(sprintf('https://static-beta2.gac.edu%shelpbox-%s.css?v=1', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox')), $actual);
+    $this->assertSame(sprintf('https://static-beta3.gac.edu%shelpbox-%s.css?v=1', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox')), $actual);
   }
 
   /**
@@ -154,7 +154,7 @@ class ResourceTest extends TestBase
   {
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css', 'crush' => true];
     $actual = Resources\Resource::renderResource([$resource], true);
-    $this->assertSame(sprintf('https://static-beta2.gac.edu%shelpbox-%s.css?v=1', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox')), $actual);
+    $this->assertSame(sprintf('https://static-beta3.gac.edu%shelpbox-%s.css?v=1', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox')), $actual);
   }
 
   /**
@@ -169,7 +169,7 @@ class ResourceTest extends TestBase
         sprintf('%shelpbox-%s.css', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox'))
     );
     $expected = sprintf(
-        'https://static-beta2.gac.edu%shelpboxBNDL-%s.css?v=1',
+        'https://static-beta3.gac.edu%shelpboxBNDL-%s.css?v=1',
         CSSMin::$minifiedFolder,
         md5($expectedCrushedPaths)
     );
@@ -187,7 +187,7 @@ class ResourceTest extends TestBase
         sprintf('%shelpbox-%s.css', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox'))
     );
     $expected = sprintf(
-        'https://static-beta2.gac.edu%shelpboxBNDL-%s.css?v=1',
+        'https://static-beta3.gac.edu%shelpboxBNDL-%s.css?v=1',
         CSSMin::$minifiedFolder,
         md5($expectedCrushedPaths)
     );
@@ -213,7 +213,7 @@ class ResourceTest extends TestBase
         sprintf('%sselect2-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/select2')),
         sprintf('%sselect2.custom-%s.css', CSSMin::$minifiedFolder, md5('/js/Gustavus/css'))
     );
-    $expected = sprintf('https://static-beta2.gac.edu%sselect2.customBNDL-%s.css?v=1',
+    $expected = sprintf('https://static-beta3.gac.edu%sselect2.customBNDL-%s.css?v=1',
         CSSMin::$minifiedFolder,
         md5($expectedCrushedPaths)
     );
@@ -242,7 +242,7 @@ class ResourceTest extends TestBase
     $expectedCrushedPaths = sprintf('%s,/js/Gustavus/css/select2.custom.css',
         sprintf('%sselect2-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/select2'))
     );
-    $expected = sprintf('https://static-beta2.gac.edu%sselect2.customBNDL-%s.css?v=1',
+    $expected = sprintf('https://static-beta3.gac.edu%sselect2.customBNDL-%s.css?v=1',
         CSSMin::$minifiedFolder,
         md5($expectedCrushedPaths)
     );
@@ -261,7 +261,7 @@ class ResourceTest extends TestBase
   {
     $resource = ['path' => '/template/js/plugins/helpbox/helpbox.css'];
     $actual = Resources\Resource::renderResource([$resource], true, false);
-    $this->assertSame('https://static-beta2.gac.edu/template/js/plugins/helpbox/helpbox.css?v=1', $actual);
+    $this->assertSame('https://static-beta3.gac.edu/template/js/plugins/helpbox/helpbox.css?v=1', $actual);
   }
 
   /**
@@ -288,7 +288,7 @@ class ResourceTest extends TestBase
         sprintf('%shelpbox-%s.css', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox'))
     );
     $expected = sprintf(
-        'https://static-beta2.gac.edu%shelpboxBNDL-%s.css?v=1',
+        'https://static-beta3.gac.edu%shelpboxBNDL-%s.css?v=1',
         CSSMin::$minifiedFolder,
         md5($expectedCrushedPaths)
     );
@@ -318,7 +318,7 @@ class ResourceTest extends TestBase
         sprintf('%shelpbox-%s.css', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox'))
     );
     $expected = sprintf(
-        'https://static-beta2.gac.edu%shelpboxBNDL-%s.css?v=1',
+        'https://static-beta3.gac.edu%shelpboxBNDL-%s.css?v=1',
         CSSMin::$minifiedFolder,
         md5($expectedCrushedPaths)
     );
@@ -350,8 +350,8 @@ class ResourceTest extends TestBase
     $helpboxCrushName = sprintf('%shelpbox-%s.css', CSSMin::$minifiedFolder, md5('/template/js/plugins/helpbox'));
     $qtipCrushName = sprintf('%sjquery.qtip.min-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/qTip2/dist'));
     $expectedName = sprintf('helpboxBNDL-%s.css', md5(sprintf('%s,%s,/js/Gustavus/select2.custom.css,%s', $qtipCrushName, $crushName, $helpboxCrushName)));
-    
-    $expected = sprintf('https://static-beta2.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
+
+    $expected = sprintf('https://static-beta3.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderResource(['qtip-css', 'select2', ['path' => '/template/js/plugins/helpbox/helpbox.css']]);
     $this->assertSame($expected, $actual);
@@ -380,7 +380,7 @@ class ResourceTest extends TestBase
     $qtipCrushName = sprintf('%sjquery.qtip.min-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/qTip2/dist'));
     $expectedName = sprintf('helpboxBNDL-%s.css', md5(sprintf('%s,/js/Gustavus/select2.custom.css,%s,%s', $crushName, $qtipCrushName, $helpboxCrushName)));
 
-    $expected = sprintf('https://static-beta2.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
+    $expected = sprintf('https://static-beta3.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderResource(['select2', 'qtip-css', ['path' => '/template/js/plugins/helpbox/helpbox.css']]);
     $this->assertSame($expected, $actual);
@@ -409,7 +409,7 @@ class ResourceTest extends TestBase
     $qtipCrushName = sprintf('%sjquery.qtip.min-%s.css', CSSMin::$minifiedFolder, md5('/js/jquery/qTip2/dist'));
     $expectedName = sprintf('select2.customBNDL-%s.css', md5(sprintf('%s,%s,%s,/js/Gustavus/select2.custom.css', $qtipCrushName, $helpboxCrushName, $crushName)));
 
-    $expected = sprintf('https://static-beta2.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
+    $expected = sprintf('https://static-beta3.gac.edu%s%s?v=1', CSSMin::$minifiedFolder, $expectedName);
     $options['doc_root'] = '/cis/www/';
     $actual = Resources\Resource::renderResource(['qtip-css', ['path' => '/template/js/plugins/helpbox/helpbox.css'], 'select2']);
     $this->assertSame($expected, $actual);
