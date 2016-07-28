@@ -229,7 +229,7 @@ class Resource
     }
 
     return sprintf('%s%s?v=%s',
-        ($includeHost ? self::determineHost() : ''),
+        ($includeHost ? self::determineHost(strpos($resource['path'], '.js') !== false ? 'js': 'css') : ''),
         $resource['path'],
         $resource['version']
     );
@@ -245,11 +245,6 @@ class Resource
    */
   private static function renderResources(array $resourceNames, $cssCrush = true, $includeHost = true)
   {
-    if ($includeHost) {
-      $return  = self::determineHost();
-    } else {
-      $return = '';
-    }
     $version = 0;
     $temporaryVersion = false;
     $lastKey = count($resourceNames) - 1;
@@ -336,6 +331,11 @@ class Resource
       $version += $resource['version'];
     }
 
+    if ($includeHost) {
+      $return  = self::determineHost($resourceType);
+    } else {
+      $return = '';
+    }
     // we have all of our bundle information built. Now actually build the bundles.
     if ($resourceType === 'css') {
       $return .= CSSMin::bundle($resourcePaths, $srcResourcePaths, $resourceMTimes, self::allowMinification());
@@ -388,21 +388,23 @@ class Resource
   }
 
   /**
-   * Determines what host to use based on the current server
+   * Determines what host to use based on the current server and the resource type
+   *   if using a static server, it will be static2 for js resources and static3 for all others
    *
+   * @param string $resourceType Type of resource to determine host for. Defaults to 'js'.
    * @return string
    */
-  public static function determineHost()
+  public static function determineHost($resourceType = 'js')
   {
     if (\Config::isBeta()) {
       if (\Config::isAlpha()) {
         return 'https://homer.gac.edu';
       }
-      return 'https://static-beta2.gac.edu';
+      return sprintf('https://static-beta%s.gac.edu', ($resourceType === 'js') ? '2' : '3');
     } else if (\Config::isBlog()) {
       return 'https://blog.gustavus.edu';
     } else {
-      return 'https://static2.gac.edu';
+      return sprintf('https://static%s.gac.edu', ($resourceType === 'js') ? '2' : '3');
     }
   }
 
